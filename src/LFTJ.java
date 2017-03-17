@@ -16,9 +16,10 @@ public class LFTJ {
     
     private ArrayList<RelationIterator<Integer>> relIts; //array of iterators, one for each relation
     private ArrayList<ArrayList<Integer>> result; //result set: array with tuples
-    private int ip = 0; //iterator pointer
+    private int p = 0; //iterator pointer
     private int numIters; //number of iterators
-    private boolean lfDone = false;
+    private int depth = 0;
+    private boolean atEnd = false;
     
     private LFTJ() {
         //create some fictive relations (later to be replaced with existing datasets)
@@ -48,7 +49,7 @@ public class LFTJ {
         leapfrogInit();
         
         //after initializing, search for common keys in all relations and output them to the result set
-        if(!lfDone) {
+        if(!atEnd) {
             leapfrogSearch();
         }
         //print the result set
@@ -63,7 +64,7 @@ public class LFTJ {
         //if any iterator is empty return (empty) result array
         for(RelationIterator<Integer> relIt : relIts) {
             if(relIt.atEnd()) {
-                lfDone = true;
+                atEnd = true;
                 return;
             }
         }
@@ -77,6 +78,9 @@ public class LFTJ {
         
         //actual sorting
         Collections.sort(relIts);
+
+        p = 0;
+        leapfrogSearch();
         
         //testing
 //        System.out.println( "After sorting");
@@ -92,13 +96,13 @@ public class LFTJ {
         
         //get maxKey index 
         //correction needed since -1 % 3 returns -1 and not 2 as we want
-        int maxKeyIndex = ((ip - 1) % numIters) + ((ip - 1) < 0 ? numIters : 0);
+        int maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
         
         //get maximum key (from the last spot in the sorted array)
         int maxKey = relIts.get(maxKeyIndex).key();
         
         while (true) {
-            curIt = relIts.get(ip);
+            curIt = relIts.get(p);
             
             //get minimum key (from the first spot in the sorted array)
             int minKey = curIt.key();
@@ -113,59 +117,59 @@ public class LFTJ {
                 result.add(tuple);
                 
                 //continue looking for more tuples (if the current iterator is not at the end of its relation)
-                //this is, I think, where leapfrog-next comes in, but it doesn't seem necessary to me at first glance to create a new method for this
-                if (curIt.hasNext()) {
-                    curIt.next();
-                    maxKey = curIt.key();
-                    //re-sort the iterators based on their keys
-                    Collections.sort(relIts);
-                    //reset ip to 0, it will lead to the minimum key value again after the sort
-                    ip = 0;
-                } else {
-                    lfDone = true;
-                    return;
-                }             
+                leapfrogNext();
             } 
             //if no common key is found, update pointer of iterator
             else {
-                if(curIt.hasNext()) {
-                    curIt.seek(maxKey);
-                    maxKey = curIt.key();
-                    //move on to next iterator
-                    ip = (ip + 1) % numIters;
-                } else {
-                    lfDone = true;
+                leapfrogSeek(maxKey);
+                if(relIts.get(p).atEnd()){
+                    atEnd = true;
                     return;
+                } else {
+                    maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
+                    maxKey = relIts.get(maxKeyIndex).key();
+                    p = (p + 1) % numIters;
                 }
             }
         }
         
     }
-    
-//    //used to test the functionality of the iterator interface
-//    public void testIterator() {
-//        //create fictive relation for testing purposes
-//        int[] relArray = new int[]{1, 4, 6, 8, 9};
-//        Relation rel = new Relation(relArray);
-//
-//        //create iterator for the relation
-//        RelationIterator<Integer> relIt = rel.iterator();
-//
-//        //test next()
-//        for(Integer key : rel) {
-//            System.out.print(key + " ");
-//        }
-//        System.out.println();
-//
-//        //test seek(int seekKey) and key()
-//        relIt.seek(5);
-//        System.out.println("seek 5 gives " +relIt.key());
-//
-//        //test seek(int seekKey) and atEnd()
-//        relIt.seek(9);
-//        System.out.println("with seek 9, atEnd is " +relIt.atEnd());
-//
-//    }
+
+    private void leapfrogNext(){
+        relIts.get(p).next();
+        if(relIts.get(p).atEnd()){
+            atEnd = true;
+        } else {
+            p = (p + 1) % numIters;
+        }
+    }
+
+    private void leapfrogSeek(int seekKey){
+        relIts.get(p).seek(seekKey);
+        if(relIts.get(p).atEnd()) {
+            //move on to next iterator
+            atEnd = true;
+        } else {
+            p = (p + 1) % numIters;
+            leapfrogSearch();
+        }
+    }
+
+    private void triejoinOpen(){
+        depth = depth + 1;
+        for(RelationIterator relIt : relIts ) {
+            relIt.open();
+        }
+        leapfrogInit();
+    }
+
+    private void triejoinUp(){
+        for(RelationIterator relIt : relIts ) {
+            relIt.up();
+        }
+        depth = depth - 1;
+    }
+
    
     /**
      * @param args the command line arguments
