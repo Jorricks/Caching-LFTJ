@@ -47,21 +47,20 @@ public class Relation implements Iterable<Integer>{
 
            @Override
            public Integer next() {
-               if(this.hasNext()) {
-                   key = array[indexDepth][indexTuple];
-                   indexTuple ++;
-                   return key;
-               }
-               throw new NoSuchElementException("IndexDepth ="+indexDepth+" indexTuple ="+indexTuple);
+               indexTuple ++;
+               return key;
            }
 
            //position iterator at least upper bound for seekKey as explained in the paper
            //or at the end if no such key exists
            @Override
            public void seek(int seekKey) {
-               while (key < seekKey && indexTuple <= tupleUpperBound) {
-                   if(this.hasNext()){
-                       key = this.next();
+               while (key < seekKey && indexTuple <= tupleUpperBound+1) {
+                   if(!atEnd()){
+                       indexTuple ++;
+                       if(indexTuple <= tupleUpperBound){
+                           key = array[indexDepth][indexTuple];
+                       }
                    } else {
                        return;
                    }
@@ -70,8 +69,7 @@ public class Relation implements Iterable<Integer>{
 
            @Override
            public boolean atEnd() {
-               System.out.println("atEnd - " + indexDepth + " - "+ indexTuple + " tupple " + tupleUpperBound);
-               return (indexTuple >= tupleUpperBound);
+               return (indexTuple > tupleUpperBound);
            }
 
            //used for sorting
@@ -85,7 +83,6 @@ public class Relation implements Iterable<Integer>{
            public void open(){
                if(indexDepth < array.length - 1){
                    indexDepth++;
-//                   System.out.println("indexTuple="+indexTuple);
                    findTupleLowerBound();
                    findTupleUpperBound();
                } else {
@@ -100,8 +97,6 @@ public class Relation implements Iterable<Integer>{
                    indexDepth--;
                    findTupleLowerBound();
                    findTupleUpperBound();
-                   //indexTuple++;
-                   // We do not set indexTuple to tupleLowerBound. This would set back results causing inf loop
                } else {
                    throw new NoSuchElementException();
                }
@@ -113,7 +108,6 @@ public class Relation implements Iterable<Integer>{
                    tupleLowerBound = 0;
                    int searchDepth = indexDepth - 1;
                    for (int i = searchDepth; i >= 0; i--) {
-//                       System.out.println("seachDepth i= "+i+" indexTuple="+indexTuple);
                        int levelKey = array[searchDepth][indexTuple];
                        for (int j = indexTuple; j >= 0 && array[searchDepth][j] > tupleLowerBound; j--) {
                            if (levelKey != array[searchDepth][j]) {
@@ -134,10 +128,9 @@ public class Relation implements Iterable<Integer>{
                    int searchDepth = indexDepth - 1;
                    for(int i = searchDepth; i >= 0; i--){
                        int levelKey = array[searchDepth][indexTuple];
-                       for(int j = indexTuple; j < array[searchDepth].length && j < tupleUpperBound; j++){
+                       for(int j = indexTuple; j < array[searchDepth].length && j <= tupleUpperBound; j++){
                            if (levelKey != array[searchDepth][j]){
                                tupleUpperBound = j-1;
-                               System.out.println("tUpper = "+ tupleUpperBound);
                                break;
                            }
                        }
@@ -149,8 +142,13 @@ public class Relation implements Iterable<Integer>{
 
            @Override
            public String debugString(){
-               return tupleLowerBound + " " + tupleUpperBound + " - " + indexDepth + " " + indexTuple + " = " +
-                       array[indexDepth][indexTuple];
+               if(indexTuple < array[0].length){
+                   return "tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iDepth: " + indexDepth +
+                           ", iTuple: " + indexTuple + ", key: "+ array[indexDepth][indexTuple];
+               } else {
+                   return "tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iDepth: " + indexDepth +
+                           ", iTuple: " + indexTuple + ", key: Out Of Bound";
+               }
            }
        };
 

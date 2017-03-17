@@ -12,6 +12,8 @@ import java.util.Collections;
  * @author s131061
  */
 public class LFTJ {
+
+    public int debug = 3; // Represents the amount of debugging. 0 = None, 3 = Extreme
     
     private ArrayList<RelationIterator<Integer>> relIts; //array of iterators, one for each relation
     private ArrayList<ArrayList<Integer>> result; //result set: array with tuples
@@ -27,9 +29,15 @@ public class LFTJ {
         //create some fictive relations (later to be replaced with existing datasets)
         //note: it only works if these arrays are sorted
         //either we have to always sort these arrays first or we need to change the seek method in relation
-        Relation relA = new Relation(new int[][]{{1,1,1},{3,5,6}});
-        Relation relB = new Relation(new int[][]{{1,1,1,2,2,3,3},{4,5,7,8,3,4,7}});
-        Relation relC = new Relation(new int[][]{{1,1,2,3},{2,5,3,7}});
+        Relation relA = new Relation(new int[][]{
+                {1,1,1,3,3,5,6},
+                {3,5,6,3,7,5,3}});
+        Relation relB = new Relation(new int[][]{
+                {1,1,1,2,2,3,3,5,6},
+                {4,5,7,8,3,4,7,5,1}});
+        Relation relC = new Relation(new int[][]{
+                {1,1,2,3,5,7},
+                {2,5,3,7,5,1}});
 
         maxDepth = 2;
 
@@ -45,76 +53,70 @@ public class LFTJ {
     }
     
     
-    //main function to call for a unary join 
+    //main function to call for joins
     //will also be the building block for relations with arity > 1 later on
     private void multiJoin(){
-        
         //start leapfrogging
-        System.out.println(relIts.get(0).debugString());
-        System.out.println(relIts.get(1).debugString());
-        System.out.println(relIts.get(2).debugString());
-        System.out.println(depth+" - "+key);
+        printDebugInfo();
         leapfrogInit();
-        System.out.println(relIts.get(0).debugString());
-        System.out.println(relIts.get(1).debugString());
-        System.out.println(relIts.get(2).debugString());
-        System.out.println(depth+" - "+key);
         while (true){
+            if(debug>=1) {
+                System.out.println(result);
+                printDebugInfo("A1");
+            }
             if(key == -1){
-                System.out.println("A1");
+                if(debug>=2) { printDebugInfo("A2"); }
+
                 if(depth==0){
-                    System.out.println("A2");
+                    if(debug>=2) { printDebugInfo("A3"); }
                     break;
                 }
+
                 leapfrogUp();
                 leapfrogInit();
-                System.out.println("A3");
-                System.out.println(relIts.get(0).debugString());
-                System.out.println(relIts.get(1).debugString());
-                System.out.println(relIts.get(2).debugString());
-                System.out.println(depth+" - "+key);
+
+                if(debug>=2) { printDebugInfo("A4");}
             } else {
-                System.out.println("B1");
+                if(debug>=1) {
+                    printDebugInfo("B1");
+                }
                 if(depth == maxDepth-1){
-                    System.out.println("B2");
+                    if(debug>=1) {
+                        printDebugInfo("B1");
+                    }
+                    ArrayList<Integer> tuple = new ArrayList<>();
                     currentTuple.add(key);
-                    System.out.println("ADDED =[" + currentTuple.get(0)+"]["+ currentTuple.get(1)+"] - "
-                            +currentTuple.size());
-                    result.add(currentTuple);
+                    if(debug>=1) {
+                        System.out.println("ADDED =[" + currentTuple.get(0) + "][" + currentTuple.get(1) + "] - "
+                                + currentTuple.size());
+                    }
+                    tuple.add(currentTuple.get(0));
+                    tuple.add(currentTuple.get(1));
+                    result.add(tuple);
+                    System.out.println(currentTuple);
+                    System.out.println(result);
                     currentTuple.remove(currentTuple.size()-1);
-                    leapfrogUp();
-                    System.out.println("START ");
-                    System.out.println(relIts.get(0).debugString());
-                    System.out.println(relIts.get(1).debugString());
-                    System.out.println(relIts.get(2).debugString());
-                    System.out.println(depth+" - "+key);
-                    leapfrogInit();
+
+                    if(atEnd){
+                        leapfrogUp();
+                        leapfrogInit();
+                    } else {
+                        leapfrogNext();
+                    }
+                    printDebugInfo();
                 } else {
                     System.out.println("B3");
                     leapfrogOpen();
                 }
             }
         }
-        System.out.println(relIts.get(0).debugString());
-        System.out.println(relIts.get(1).debugString());
-        System.out.println(relIts.get(2).debugString());
-        System.out.println(depth+" - "+key);
-        leapfrogNext();
-        System.out.println(relIts.get(0).debugString());
-        System.out.println(relIts.get(1).debugString());
-        System.out.println(relIts.get(2).debugString());
-        System.out.println(depth+" - "+key);
-        
-//        //after initializing, search for common keys in all relations and output them to the result set
-//        if(!atEnd) {
-//            leapfrogSearch();
-//        }
-        //print the result set
+
         System.out.println(result);
     }
     
     private void leapfrogInit() {
         //if any iterator is empty return (empty) result array
+        atEnd = false;
         for(RelationIterator<Integer> relIt : relIts) {
 //            System.out.println(counter + " - " + relIt.key() + " = " + relIt.debugString());
             if(relIt.atEnd()) {
@@ -123,7 +125,6 @@ public class LFTJ {
 //                key = -1;
             }
         }
-        atEnd = false;
         //else sort the iterators on their key values
         
         //testing 
@@ -133,9 +134,11 @@ public class LFTJ {
 //        }
         
         //actual sorting
-        Collections.sort(relIts);
-        p = 0;
-        leapfrogSearch();
+        if(!atEnd) {
+            Collections.sort(relIts);
+            p = 0;
+            leapfrogSearch();
+        }
 //        System.out.println(key);
         
         //testing
@@ -160,7 +163,12 @@ public class LFTJ {
         while (true) {
             curIt = relIts.get(p);
 //            System.out.println(p + " - " + relIts.get(p).key());
-            
+
+            // Safe gaurd to avoid overflow
+            if(relIts.get(p).atEnd()) {
+                atEnd = true;
+                return;
+            }
             //get minimum key (from the first spot in the sorted array)
             int minKey = curIt.key();
             System.out.println("Ja "+curIt.debugString());
@@ -176,6 +184,7 @@ public class LFTJ {
             } 
             //if no common key is found, update pointer of iterator
             else {
+                System.out.println("Searching for "+maxKey);
                 relIts.get(p).seek(maxKey);
                 if(relIts.get(p).atEnd()){
                     atEnd = true;
@@ -183,6 +192,7 @@ public class LFTJ {
                     System.out.println("key = -1");
                     return;
                 } else {
+                    maxKey = relIts.get(p).key();
                     p = (p + 1) % numIters;
                     leapfrogSearch();
                 }
@@ -192,6 +202,9 @@ public class LFTJ {
     }
 
     private void leapfrogNext(){
+        for(int i = depth; i>0; i--){
+            leapfrogUp();
+        }
         relIts.get(p).next();
         if(relIts.get(p).atEnd()){
             atEnd = true;
@@ -235,11 +248,28 @@ public class LFTJ {
         depth = depth - 1;
     }
 
+
+    private void printDebugInfo(){
+        printDebugInfo("");
+    }
+    private void printDebugInfo(String message){
+        if (message.length()>=1){
+            System.out.println("Message: "+message);
+        }
+        if(debug>=3) {
+            System.out.println("Info of iterator 0 : " + relIts.get(0).debugString());
+            System.out.println("Info of iterator 1 : " + relIts.get(1).debugString());
+            System.out.println("Info of iterator 2 : " + relIts.get(2).debugString());
+            System.out.println(depth + " - " + key);
+        }
+    }
+
    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        System.out.println("Starting");
         LFTJ lftj = new LFTJ();
         //lftj.testIterator();
         lftj.multiJoin();
