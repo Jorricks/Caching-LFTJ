@@ -22,5 +22,7 @@ public interface RelationIterator<Integer> extends Iterator, Comparable<Relation
     void open();
 
     void up();
+
+    String debugString();
     
 }

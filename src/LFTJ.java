@@ -7,7 +7,6 @@ package src;
 
 import java.util.ArrayList;
 import java.util.Collections;
-
 /**
  *
  * @author s131061
@@ -19,15 +18,20 @@ public class LFTJ {
     private int p = 0; //iterator pointer
     private int numIters; //number of iterators
     private int depth = 0;
-    private boolean atEnd = false;
+    private int maxDepth = 0; // how deep is our relation? R(x,y), T(y,z) yields 2.
+    private int key = 0;
+    private ArrayList<Integer> currentTuple = new ArrayList<>();
+    private boolean atEnd;
     
     private LFTJ() {
         //create some fictive relations (later to be replaced with existing datasets)
         //note: it only works if these arrays are sorted
         //either we have to always sort these arrays first or we need to change the seek method in relation
-        Relation relA = new Relation(new int[][]{{1,1,1,2,2,3,3},{3,4,6,3,6,4,7}});
-        Relation relB = new Relation(new int[][]{{1,1,1,1,2,3,3},{2,4,7,8,3,4,7}});
-        Relation relC = new Relation(new int[][]{{1,2,3},{4,3,7}});
+        Relation relA = new Relation(new int[][]{{1,1,1},{3,5,6}});
+        Relation relB = new Relation(new int[][]{{1,1,1,2,2,3,3},{4,5,7,8,3,4,7}});
+        Relation relC = new Relation(new int[][]{{1,1,2,3},{2,5,3,7}});
+
+        maxDepth = 2;
 
         //create iterators for each relation and put all iterators in an array
         relIts = new ArrayList<>();
@@ -43,31 +47,83 @@ public class LFTJ {
     
     //main function to call for a unary join 
     //will also be the building block for relations with arity > 1 later on
-    private void unaryJoin(){
+    private void multiJoin(){
         
         //start leapfrogging
+        System.out.println(relIts.get(0).debugString());
+        System.out.println(relIts.get(1).debugString());
+        System.out.println(relIts.get(2).debugString());
+        System.out.println(depth+" - "+key);
         leapfrogInit();
-        
-        //after initializing, search for common keys in all relations and output them to the result set
-        if(!atEnd) {
-            leapfrogSearch();
+        System.out.println(relIts.get(0).debugString());
+        System.out.println(relIts.get(1).debugString());
+        System.out.println(relIts.get(2).debugString());
+        System.out.println(depth+" - "+key);
+        while (true){
+            if(key == -1){
+                System.out.println("A1");
+                if(depth==0){
+                    System.out.println("A2");
+                    break;
+                }
+                leapfrogUp();
+                leapfrogInit();
+                System.out.println("A3");
+                System.out.println(relIts.get(0).debugString());
+                System.out.println(relIts.get(1).debugString());
+                System.out.println(relIts.get(2).debugString());
+                System.out.println(depth+" - "+key);
+            } else {
+                System.out.println("B1");
+                if(depth == maxDepth-1){
+                    System.out.println("B2");
+                    currentTuple.add(key);
+                    System.out.println("ADDED =[" + currentTuple.get(0)+"]["+ currentTuple.get(1)+"] - "
+                            +currentTuple.size());
+                    result.add(currentTuple);
+                    currentTuple.remove(currentTuple.size()-1);
+                    leapfrogUp();
+                    System.out.println("START ");
+                    System.out.println(relIts.get(0).debugString());
+                    System.out.println(relIts.get(1).debugString());
+                    System.out.println(relIts.get(2).debugString());
+                    System.out.println(depth+" - "+key);
+                    leapfrogInit();
+                } else {
+                    System.out.println("B3");
+                    leapfrogOpen();
+                }
+            }
         }
+        System.out.println(relIts.get(0).debugString());
+        System.out.println(relIts.get(1).debugString());
+        System.out.println(relIts.get(2).debugString());
+        System.out.println(depth+" - "+key);
+        leapfrogNext();
+        System.out.println(relIts.get(0).debugString());
+        System.out.println(relIts.get(1).debugString());
+        System.out.println(relIts.get(2).debugString());
+        System.out.println(depth+" - "+key);
+        
+//        //after initializing, search for common keys in all relations and output them to the result set
+//        if(!atEnd) {
+//            leapfrogSearch();
+//        }
         //print the result set
         System.out.println(result);
-        
-        //no idea why we need leapfrog-seek as of now?!?!
-        
     }
     
     private void leapfrogInit() {
-        
         //if any iterator is empty return (empty) result array
         for(RelationIterator<Integer> relIt : relIts) {
+//            System.out.println(counter + " - " + relIt.key() + " = " + relIt.debugString());
             if(relIt.atEnd()) {
                 atEnd = true;
-                return;
+                System.out.println("kkey = -1");
+//                key = -1;
             }
         }
+        atEnd = false;
         //else sort the iterators on their key values
         
         //testing 
@@ -78,12 +134,12 @@ public class LFTJ {
         
         //actual sorting
         Collections.sort(relIts);
-
         p = 0;
         leapfrogSearch();
+//        System.out.println(key);
         
         //testing
-//        System.out.println( "After sorting");
+//        System.out.println("After sorting");
 //        for(RelationIterator<Integer> relIt : relIts) {
 //            System.out.println(relIt.key());
 //        }
@@ -103,32 +159,32 @@ public class LFTJ {
         
         while (true) {
             curIt = relIts.get(p);
+//            System.out.println(p + " - " + relIts.get(p).key());
             
             //get minimum key (from the first spot in the sorted array)
             int minKey = curIt.key();
+            System.out.println("Ja "+curIt.debugString());
 
             //if they are equal a common key is found, write it to the result set
             if (maxKey == minKey) {
-                ArrayList<Integer> tuple = new ArrayList<>();
-                for(RelationIterator relIt : relIts ) {
-                    tuple.add(relIt.key());
-                }
-                //System.out.println(result);
-                result.add(tuple);
-                
-                //continue looking for more tuples (if the current iterator is not at the end of its relation)
-                leapfrogNext();
+                key = minKey;
+                System.out.println(relIts.get(0).debugString());
+                System.out.println(relIts.get(1).debugString());
+                System.out.println(relIts.get(2).debugString());
+                System.out.println("key = "+key);
+                return;
             } 
             //if no common key is found, update pointer of iterator
             else {
-                leapfrogSeek(maxKey);
+                relIts.get(p).seek(maxKey);
                 if(relIts.get(p).atEnd()){
                     atEnd = true;
+                    key = -1;
+                    System.out.println("key = -1");
                     return;
                 } else {
-                    maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
-                    maxKey = relIts.get(maxKeyIndex).key();
                     p = (p + 1) % numIters;
+                    leapfrogSearch();
                 }
             }
         }
@@ -141,6 +197,7 @@ public class LFTJ {
             atEnd = true;
         } else {
             p = (p + 1) % numIters;
+            leapfrogSearch();
         }
     }
 
@@ -155,15 +212,23 @@ public class LFTJ {
         }
     }
 
-    private void triejoinOpen(){
+    private void leapfrogOpen(){
+        if(depth > -1){
+            currentTuple.add(relIts.get(0).key());
+        }
         depth = depth + 1;
         for(RelationIterator relIt : relIts ) {
             relIt.open();
         }
+        System.out.println(relIts.get(0).debugString());
+        System.out.println(relIts.get(1).debugString());
+        System.out.println(relIts.get(2).debugString());
+        System.out.println(depth+" - "+key);
         leapfrogInit();
     }
 
-    private void triejoinUp(){
+    private void leapfrogUp(){
+        currentTuple.remove(currentTuple.size()-1);
         for(RelationIterator relIt : relIts ) {
             relIt.up();
         }
@@ -177,7 +242,7 @@ public class LFTJ {
     public static void main(String[] args) {
         LFTJ lftj = new LFTJ();
         //lftj.testIterator();
-        lftj.unaryJoin();
+        lftj.multiJoin();
     }
     
 }
