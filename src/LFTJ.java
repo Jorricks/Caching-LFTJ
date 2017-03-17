@@ -14,20 +14,20 @@ import java.util.Collections;
  */
 public class LFTJ {
     
-    ArrayList<RelationIterator<Integer>> relIts; //array of iterators, one for each relation
-    ArrayList<ArrayList<Integer>> result; //result set: array with tuples 
-    int ip = 0; //iterator pointer
-    int numIters; //number of iterators
-    boolean lfDone = false;
+    private ArrayList<RelationIterator<Integer>> relIts; //array of iterators, one for each relation
+    private ArrayList<ArrayList<Integer>> result; //result set: array with tuples
+    private int ip = 0; //iterator pointer
+    private int numIters; //number of iterators
+    private boolean lfDone = false;
     
-    public LFTJ() {
+    private LFTJ() {
         //create some fictive relations (later to be replaced with existing datasets)
         //note: it only works if these arrays are sorted
         //either we have to always sort these arrays first or we need to change the seek method in relation
         Relation relA = new Relation(new int[]{1, 3, 4, 6, 8, 11});
         Relation relB = new Relation(new int[]{2, 3, 4, 5, 7, 8, 9, 10, 11});
         //Relation relC = new Relation(new int[]{1, 2, 3, 5, 6, 8, 10, 11});
-        Relation relC = new Relation(new int[]{});
+        Relation relC = new Relation(new int[]{3,5,8,10});
 
         //create iterators for each relation and put all iterators in an array
         relIts = new ArrayList<>();
@@ -43,7 +43,7 @@ public class LFTJ {
     
     //main function to call for a unary join 
     //will also be the building block for relations with arity > 1 later on
-    public void unaryJoin(){
+    private void unaryJoin(){
         
         //start leapfrogging
         leapfrogInit();
@@ -59,7 +59,7 @@ public class LFTJ {
         
     }
     
-    public void leapfrogInit() {
+    private void leapfrogInit() {
         
         //if any iterator is empty return (empty) result array
         for(RelationIterator<Integer> relIt : relIts) {
@@ -87,7 +87,7 @@ public class LFTJ {
         
     }
 
-    public void leapfrogSearch() {
+    private void leapfrogSearch() {
         //current iterator
         RelationIterator curIt;
         
@@ -106,7 +106,7 @@ public class LFTJ {
 
             //if they are equal a common key is found, write it to the result set
             if (maxKey == minKey) {
-                ArrayList<Integer> tuple = new ArrayList<Integer>();
+                ArrayList<Integer> tuple = new ArrayList<>();
                 for(RelationIterator relIt : relIts ) {
                     tuple.add(relIt.key());
                 }
