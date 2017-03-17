@@ -26,7 +26,7 @@ public class Relation implements Iterable<Integer>{
        RelationIterator<Integer> relIt = new RelationIterator<Integer>() {
            
            //not sure that both index and key are needed, but it seems to work fine
-           private int index = 0;
+           private int index = 1;
            private int key = (arraySize == 0 ? 0 : array[0]);
            
            @Override
@@ -64,7 +64,7 @@ public class Relation implements Iterable<Integer>{
            
            @Override
            public boolean atEnd() {
-               return !this.hasNext();
+               return index > arraySize;
            }
 
            //used for sorting

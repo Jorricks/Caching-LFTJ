@@ -26,8 +26,9 @@ public class LFTJ {
         //either we have to always sort these arrays first or we need to change the seek method in relation
         Relation relA = new Relation(new int[]{1, 3, 4, 6, 8, 11});
         Relation relB = new Relation(new int[]{2, 3, 4, 5, 7, 8, 9, 10, 11});
-        Relation relC = new Relation(new int[]{1, 2, 3, 5, 6, 8, 10, 11});
-        
+        //Relation relC = new Relation(new int[]{1, 2, 3, 5, 6, 8, 10, 11});
+        Relation relC = new Relation(new int[]{});
+
         //create iterators for each relation and put all iterators in an array
         relIts = new ArrayList<>();
         relIts.add(relA.iterator());
@@ -133,6 +134,9 @@ public class LFTJ {
                     maxKey = curIt.key();
                     //move on to next iterator
                     ip = (ip + 1) % numIters;
+                } else {
+                    lfDone = true;
+                    return;
                 }
             }
         }
