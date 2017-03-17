@@ -18,5 +18,9 @@ public interface RelationIterator<Integer> extends Iterator, Comparable<Relation
     void seek(int seekKey);
     
     boolean atEnd();
+
+    void open();
+
+    void up();
     
 }

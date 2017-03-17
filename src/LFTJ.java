@@ -24,10 +24,9 @@ public class LFTJ {
         //create some fictive relations (later to be replaced with existing datasets)
         //note: it only works if these arrays are sorted
         //either we have to always sort these arrays first or we need to change the seek method in relation
-        Relation relA = new Relation(new int[]{1, 3, 4, 6, 8, 11});
-        Relation relB = new Relation(new int[]{2, 3, 4, 5, 7, 8, 9, 10, 11});
-        //Relation relC = new Relation(new int[]{1, 2, 3, 5, 6, 8, 10, 11});
-        Relation relC = new Relation(new int[]{3,5,8,10});
+        Relation relA = new Relation(new int[][]{{1,1,1,2,2,3,3},{3,4,6,3,6,4,7}});
+        Relation relB = new Relation(new int[][]{{1,1,1,1,2,3,3},{2,4,7,8,3,4,7}});
+        Relation relC = new Relation(new int[][]{{1,2,3},{4,3,7}});
 
         //create iterators for each relation and put all iterators in an array
         relIts = new ArrayList<>();
@@ -143,30 +142,30 @@ public class LFTJ {
         
     }
     
-    //used to test the functionality of the iterator interface
-    public void testIterator() {
-        //create fictive relation for testing purposes 
-        int[] relArray = new int[]{1, 4, 6, 8, 9};
-        Relation rel = new Relation(relArray);
-        
-        //create iterator for the relation
-        RelationIterator<Integer> relIt = rel.iterator();
-        
-        //test next() 
-        for(Integer key : rel) {
-            System.out.print(key + " ");
-        }
-        System.out.println();
-        
-        //test seek(int seekKey) and key()
-        relIt.seek(5);
-        System.out.println("seek 5 gives " +relIt.key());
-        
-        //test seek(int seekKey) and atEnd()
-        relIt.seek(9);
-        System.out.println("with seek 9, atEnd is " +relIt.atEnd());
-        
-    }
+//    //used to test the functionality of the iterator interface
+//    public void testIterator() {
+//        //create fictive relation for testing purposes
+//        int[] relArray = new int[]{1, 4, 6, 8, 9};
+//        Relation rel = new Relation(relArray);
+//
+//        //create iterator for the relation
+//        RelationIterator<Integer> relIt = rel.iterator();
+//
+//        //test next()
+//        for(Integer key : rel) {
+//            System.out.print(key + " ");
+//        }
+//        System.out.println();
+//
+//        //test seek(int seekKey) and key()
+//        relIt.seek(5);
+//        System.out.println("seek 5 gives " +relIt.key());
+//
+//        //test seek(int seekKey) and atEnd()
+//        relIt.seek(9);
+//        System.out.println("with seek 9, atEnd is " +relIt.atEnd());
+//
+//    }
    
     /**
      * @param args the command line arguments
