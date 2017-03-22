@@ -31,12 +31,12 @@ public class Relation implements Iterable<Integer>{
            private int indexTuple = 0; // From tuple 0 to n
            // specifies for a certain depth where the tree's max is
            private int tupleLowerBound = 0;
-           private int tupleUpperBound = (arrayDepth == 0? 0 : array[0].length-1);
+           private int tupleUpperBound = (arrayDepth == 0? 0 : array.length-1);
            private int key;
 
            @Override
            public int key() {
-               key = array[indexDepth][indexTuple];
+               key = array[indexTuple][indexDepth];
                return key;
            }
 
@@ -59,7 +59,7 @@ public class Relation implements Iterable<Integer>{
                    if(!atEnd()){
                        indexTuple ++;
                        if(indexTuple <= tupleUpperBound){
-                           key = array[indexDepth][indexTuple];
+                           key = array[indexTuple][indexDepth];
                        }
                    } else {
                        return;
@@ -81,7 +81,7 @@ public class Relation implements Iterable<Integer>{
            //proceeds to the first element at the next depth
            @Override
            public void open(){
-               if(indexDepth < array.length - 1){
+               if(indexDepth < array[0].length - 1){
                    indexDepth++;
                    findTupleLowerBound();
                    findTupleUpperBound();
@@ -108,9 +108,9 @@ public class Relation implements Iterable<Integer>{
                    tupleLowerBound = 0;
                    int searchDepth = indexDepth - 1;
                    for (int i = searchDepth; i >= 0; i--) {
-                       int levelKey = array[searchDepth][indexTuple];
-                       for (int j = indexTuple; j >= 0 && array[searchDepth][j] > tupleLowerBound; j--) {
-                           if (levelKey != array[searchDepth][j]) {
+                       int levelKey = array[indexTuple][searchDepth];
+                       for (int j = indexTuple; j >= 0 && array[j][searchDepth] > tupleLowerBound; j--) {
+                           if (levelKey != array[j][searchDepth]) {
                                tupleLowerBound = j - 1;
                                break;
                            }
@@ -124,30 +124,30 @@ public class Relation implements Iterable<Integer>{
            //returns the lowest tuple index of all elements having the same parents(in the tree)
            void findTupleUpperBound(){
                if(indexDepth > 0){
-                   tupleUpperBound = array[indexDepth].length-1;
+                   tupleUpperBound = array.length-1;
                    int searchDepth = indexDepth - 1;
                    for(int i = searchDepth; i >= 0; i--){
-                       int levelKey = array[searchDepth][indexTuple];
-                       for(int j = indexTuple; j < array[searchDepth].length && j <= tupleUpperBound; j++){
-                           if (levelKey != array[searchDepth][j]){
+                       int levelKey = array[indexTuple][searchDepth];
+                       for(int j = indexTuple; j < array.length && j <= tupleUpperBound; j++){
+                           if (levelKey != array[j][searchDepth]){
                                tupleUpperBound = j-1;
                                break;
                            }
                        }
                    }
                } else {
-                   tupleUpperBound = array[indexDepth].length-1;
+                   tupleUpperBound = array.length-1;
                }
            }
 
            @Override
            public String debugString(){
-               if(indexTuple < array[0].length){
-                   return "tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iDepth: " + indexDepth +
-                           ", iTuple: " + indexTuple + ", key: "+ array[indexDepth][indexTuple];
+               if(indexTuple < array.length){
+                   return "tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iTuple: " + indexTuple +
+                           " , iDepth: " + indexDepth + ", key: "+ array[indexTuple][indexDepth];
                } else {
-                   return "tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iDepth: " + indexDepth +
-                           ", iTuple: " + indexTuple + ", key: Out Of Bound";
+                   return "tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iTuple: " + indexTuple +
+                           " , iDepth: " + indexDepth + ", key: Out Of Bound";
                }
            }
        };
