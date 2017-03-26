@@ -5,6 +5,7 @@
  */
 package src;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 /**
@@ -25,13 +26,18 @@ public class LFTJ {
     private ArrayList<Integer> currentTuple = new ArrayList<>();
     private boolean atEnd;
     
-    private LFTJ() {
+    private LFTJ() throws IOException {
         // Create some fictive relations (later to be replaced with existing datasets)
         // Note: it only works if these arrays are sorted
         // Either we have to always sort these arrays first or we need to change the seek method in relation
         Relation relA = new Relation(new int[][]{{1,3},{1,5},{1,6},{3,3},{3,7},{5,5},{6,3}});
         Relation relB = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1}});
         Relation relC = new Relation(new int[][]{{1,2},{1,5},{2,3},{3,7},{5,5},{7,1}});
+
+        DataImporter di = new DataImporter("./data/test.txt");
+        Relation relD = di.getRelArray();
+        di = new DataImporter("./data/test.txt");
+        Relation relE = di.getRelArray();
 
         // We define the amount of items in a tuple in the data set..
         // @To-Do: Get this parameter of the set when reading. {1} is 1, {1,5,3} is 3
@@ -42,6 +48,8 @@ public class LFTJ {
         relIts.add(relA.iterator());
         relIts.add(relB.iterator());
         relIts.add(relC.iterator());
+        //relIts.add(relD.iterator());
+        //relIts.add(relE.iterator());
         numIters = relIts.size();
 
         //create an array that will hold the results
@@ -268,10 +276,11 @@ public class LFTJ {
             System.out.println("Message: "+message);
         }
         if(debug>=3) {
-            System.out.println("Info of iterator 0 : " + relIts.get(0).debugString());
-            System.out.println("Info of iterator 1 : " + relIts.get(1).debugString());
-            System.out.println("Info of iterator 2 : " + relIts.get(2).debugString());
-            System.out.println(depth + " - " + key);
+            for (int i = 0; i < relIts.size(); i++) {
+                System.out.println("Info of iterator " + Integer.toString(i) + ": " + relIts.get
+                        (i).debugString());
+                System.out.println(depth + " - " + key);
+            }
         }
     }
 
@@ -279,7 +288,7 @@ public class LFTJ {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Create a LFTJ, load the datasets and ready to rumble
         LFTJ lftj = new LFTJ();
         // We start the jointjes
