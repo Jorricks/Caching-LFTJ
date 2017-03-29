@@ -14,7 +14,7 @@ import java.util.Collections;
  */
 public class LFTJ {
 
-    public int debug = 0; // Represents the amount of debugging. 0 = None, 3 = Extreme
+    private int debug = 0; // Represents the amount of debugging. 0 = None, 3 = Extreme
     
     private ArrayList<RelationIterator<Integer>> relIts; //array of iterators, one for each relation
     private ArrayList<ArrayList<Integer>> result; //result set: array with tuples
