@@ -1,9 +1,7 @@
 package src;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Brent on 21-Mar-17.
@@ -36,6 +34,8 @@ public class DataImporter {
             }
         }
 
+        relArrayList = sortRelArray(relArrayList);
+
         // Convert Relation ArrayList to Array
         int[][] relArray = new int[relArrayList.size()][];
         for (int i = 0; i < relArrayList.size(); i++) {
@@ -49,9 +49,30 @@ public class DataImporter {
         return result;
     }
 
+    //Sort a relation array
+    private List<List<Integer>> sortRelArray(List<List<Integer>> relArrayList) {
+        Collections.sort(relArrayList,new Comparator<List<Integer>>() {
+            @Override
+            public int compare(List<Integer> l1, List<Integer> l2) {
+                for (int i = 0; i < l1.size(); i++) {
+                    // If the a1 element compared at index i is smaller, return -1
+                    if (l1.get(i) < l2.get(i)) {
+                        return -1;
+                    }
+                    // If the a1 element compared at index 1 is larger, return 1
+                    else if (l1.get(i) > l2.get(i)) {
+                        return 1;
+                    }
+                }
+                return 0;
+            }
+        });
+        return relArrayList;
+    }
+
     // Main method for testing purposes
     public static void main(String[] args) throws IOException {
-        DataImporter di = new DataImporter("./data/test.txt");
+        DataImporter di = new DataImporter("./data/CA-GrQc.txt");
         Relation relation = di.getRelArray();
     }
 }
