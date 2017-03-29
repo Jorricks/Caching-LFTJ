@@ -7,6 +7,7 @@ package src;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 /**
  *
@@ -14,30 +15,31 @@ import java.util.Collections;
  */
 public class LFTJ {
 
-    private int debug = 0; // Represents the amount of debugging. 0 = None, 3 = Extreme
+    private int debug = 3; // Represents the amount of debugging. 0 = None, 3 = Extreme
     
     private ArrayList<RelationIterator<Integer>> relIts; //array of iterators, one for each relation
     private ArrayList<ArrayList<Integer>> result; //result set: array with tuples
+    private ArrayList<ArrayList<RelationIterator<Integer>>> iteratorPerDepth; // contains which iterator at what dept
     private int p = 0; //iterator pointer
     private int numIters; //number of iterators
-    private int depth = 0;
+    private int depth = -1;
     private int maxDepth = 0; // how deep is our relation? R(x,y), T(y,z) yields 2.
     private int key = 0;
     private boolean atEnd;
-    private RelationIterator curIt; // curIt is our current iterator
     
     private LFTJ() throws IOException {
         // Create some fictive relations (later to be replaced with existing datasets)
         // Note: it only works if these arrays are sorted
         // Either we have to always sort these arrays first or we need to change the seek method in relation
-//        Relation relA = new Relation(new int[][]{{1,3},{1,5},{1,6},{3,3},{3,7},{5,5},{6,3}});
-//        Relation relB = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1}});
-//        Relation relC = new Relation(new int[][]{{1,2},{1,5},{2,3},{3,7},{5,5},{7,1}});
+        Relation rel1 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+        Relation rel2 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+        Relation rel3 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
 
-        DataImporter di = new DataImporter("./data/test.txt");
-        Relation relD = di.getRelArray();
-        di = new DataImporter("./data/test.txt");
-        Relation relE = di.getRelArray();
+
+//        DataImporter di = new DataImporter("./data/test.txt");
+//        Relation rel4 = di.getRelArray();
+//        di = new DataImporter("./data/test.txt");
+//        Relation rel5 = di.getRelArray();
 
         // We define the amount of items in a tuple in the data set..
         // @To-Do: Get this parameter of the set when reading. {1} is 1, {1,5,3} is 3
@@ -45,12 +47,32 @@ public class LFTJ {
 
         //create iterators for each relation and put all iterators in an array
         relIts = new ArrayList<>();
-//        relIts.add(relA.iterator());
-//        relIts.add(relB.iterator());
-//        relIts.add(relC.iterator());
-        relIts.add(relD.iterator());
-        relIts.add(relE.iterator());
+        relIts.add(rel1.iterator());
+        relIts.add(rel2.iterator());
+        relIts.add(rel3.iterator());
+//        relIts.add(rel4.iterator());
+//        relIts.add(rel5.iterator());
         numIters = relIts.size();
+
+        iteratorPerDepth = new ArrayList<>();
+        // All values for a, it is only in R1(a,b)
+        ArrayList<RelationIterator<Integer>> intermedAListForIterators = new ArrayList<>();
+        intermedAListForIterators.add(rel1.iterator());
+        iteratorPerDepth.add(intermedAListForIterators);
+        // All values for b, it is only in R1(a,b) and R2(b,c)
+        intermedAListForIterators = new ArrayList<>();
+        intermedAListForIterators.add(rel1.iterator());
+        intermedAListForIterators.add(rel2.iterator());
+        iteratorPerDepth.add(intermedAListForIterators);
+        // All values for c, it is only in R2(b,c) and R3(c,d)
+        intermedAListForIterators = new ArrayList<>();
+        intermedAListForIterators.add(rel2.iterator());
+        intermedAListForIterators.add(rel3.iterator());
+        iteratorPerDepth.add(intermedAListForIterators);
+        // All values for d, it is only in R3(c,d)
+        intermedAListForIterators = new ArrayList<>();
+        intermedAListForIterators.add(rel3.iterator());
+        iteratorPerDepth.add(intermedAListForIterators);
 
         //create an array that will hold the results
         result = new ArrayList<>();
@@ -61,10 +83,10 @@ public class LFTJ {
     // @Returns the tuples that were matched
     private void multiJoin(){
         // PrintDebugInfo is a function which gives us information of where we are currently.
-        printDebugInfo();
+        if(debug>=1) { printDebugInfo(); }
 
         // Start out by initializing the algorithm. This is the main loop.
-        leapfrogInit();
+        leapfrogOpen();
 
         while (true){ // This is our search function
 
@@ -85,7 +107,6 @@ public class LFTJ {
                 if(debug>=2) { printDebugInfo("B4");}
 
             } else {
-
                 if(debug>=1) { printDebugInfo("C1"); }
 
                 if(depth == maxDepth-1){
@@ -102,7 +123,7 @@ public class LFTJ {
                     }
 
                     if(debug>=1) { printDebugInfo("C2"); }
-                    ArrayList tuple = curIt.giveResult();
+                    ArrayList tuple = relIts.get(p).giveResult();
                     if(debug>=1) {
                         System.out.println("ADDED =[" + tuple.get(0) + "][" + tuple.get(1) + "] - "
                                 + tuple.size());
@@ -167,15 +188,13 @@ public class LFTJ {
         int maxKey = relIts.get(maxKeyIndex).key();
         
         while (true) {
-            curIt = relIts.get(p);
-
             // Getting the minimum key, with safe guard to avoid overflow
             if(relIts.get(p).atEnd()) {
                 atEnd = true;
                 return;
             }
-            int minKey = curIt.key();
-            if(debug>=1) {System.out.println("curIt values: "+curIt.debugString());}
+            int minKey = relIts.get(p).key();
+            if(debug>=1) {System.out.println("curIt values: "+relIts.get(p).debugString());}
 
             // If the keys are equal it means we found something where are three are equal. We thus return
             if (maxKey == minKey) {
@@ -188,10 +207,12 @@ public class LFTJ {
                 if(debug>=1) {System.out.println("Key not equal, Searching for "+maxKey+" with minkey "+minKey);}
 
                 // We seek for our maxKey, if this is found
-                leapfrogSeek(maxKey);
-                if(atEnd){ // The maxKey is not found
+//                leapfrogSeek(maxKey);
+                relIts.get(p).seek(maxKey);
+                if(relIts.get(p).atEnd()){ // The maxKey is not found
                     key = -1;
                     if(debug>=1) {System.out.println("key = -1");}
+                    atEnd = true;
                     return;
                 } else { // The maxKey is found and thus we check if the next iterator can also find it
                     maxKey = relIts.get(p).key();
@@ -246,17 +267,17 @@ public class LFTJ {
      */
     private void leapfrogOpen(){
         depth = depth + 1;
-        for(RelationIterator relIt : relIts ) {
+        for(RelationIterator relIt : iteratorPerDepth.get(depth) ) {
             relIt.open();
         }
         leapfrogInit();
     }
 
     /**
-     * Function which opens one level up for every iterator
+     * Function which opens one level up for every iterator at this specific depth.
      */
     private void leapfrogUp(){
-        for(RelationIterator relIt : relIts ) {
+        for(RelationIterator relIt : iteratorPerDepth.get(depth) ) {
             relIt.up();
         }
         depth = depth - 1;

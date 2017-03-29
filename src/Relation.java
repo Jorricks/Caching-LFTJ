@@ -49,7 +49,7 @@ public class Relation implements Iterable<Integer>{
        RelationIterator<Integer> relIt = new RelationIterator<Integer>() {
 
            //not sure that both index and key are needed, but it seems to work fine
-           private int indexDepth = 0; // From depth 0 to ?(often 1 as we would have just 2 data points)
+           private int indexDepth = -1; // From depth 0 to ?(often 1 as we would have just 2 data points)
            private int indexTuple = 0; // From tuple 0 to n
            // specifies for a certain depth where the tree's max is
            private int tupleLowerBound = 0;
