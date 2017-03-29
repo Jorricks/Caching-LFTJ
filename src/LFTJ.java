@@ -94,7 +94,7 @@ public class LFTJ {
         leapfrogOpen();
 
         while (true){ // This is our search function
-            if(debug>=1) { System.out.println(result);  printDebugInfo("A"); }
+            if(debug>=1) { printDebugInfo("A"); }
 
             // If we did not find the specific value we were looking for
             if(atEnd){
@@ -108,10 +108,7 @@ public class LFTJ {
                 if(debug>=1){System.out.println("Depth "+depth+ " -> Level up, followed by leapfroginit");}
                 leapfrogUp();
                 leapfrogInit();
-                if(depth==0){ // we either stop because we are all the way at the end
-                    if(debug>=2) { printDebugInfo("B3"); }
-                    break;
-                }
+                leapfrogNext();
                 if(debug>=2) { printDebugInfo("B4");}
 
             } else {
@@ -127,21 +124,15 @@ public class LFTJ {
 
                     if(testForEnd){ if(debug>=1) {System.out.println("WE WERE AT THE ENDDDDD");}}
 
-                    if(debug>=1) { System.out.println(result); }
-
                     // WE GOT A WINNERRR
                     if(debug>=1) { printDebugInfo("C2"); }
                     ArrayList<Integer> tuple = new ArrayList<>();
-                    if(debug>=1) {
-                        System.out.println("ADDED =[" + currentTuple.get(0) + "][" + currentTuple.get(1) + "] - "
-                                + currentTuple.size());
-                    }
                     currentTuple.add(key);
                     tuple.addAll(currentTuple);
                     result.add(tuple);
                     currentTuple.remove(currentTuple.size()-1);
 
-                    if(debug>=1) { System.out.println(currentTuple); System.out.println(result); }
+                    if(debug>=1) {System.out.println(result); }
 
                     if(debug>=1){System.out.println("We increase our current iterator by one");}
                     leapfrogNext();
@@ -194,6 +185,8 @@ public class LFTJ {
         int maxKeyIndex = iteratorPerDepth.get(depth).size()-1;
         if(debug>=1){ System.out.println("Depth: "+depth+" maxKeyIndex: "+maxKeyIndex+" numIters: "+numIters);}
         int maxKey = iteratorPerDepth.get(depth).get(maxKeyIndex).key();
+        printDebugInfo("Info van de maxKeyIndex -> " + iteratorPerDepth.get(depth).get(maxKeyIndex).debugString());
+        if(debug>=1) { printDebugInfo("We got maxKey = "+maxKey+" and maxKeyIndex = "+maxKeyIndex);}
         
         while (true) {
             // Getting the minimum key, with safe guard to avoid overflow
@@ -271,7 +264,7 @@ public class LFTJ {
      */
     private void leapfrogOpen(){
         if(depth > -1){
-            currentTuple.add(relIts.get(0).key());
+            currentTuple.add(iteratorPerDepth.get(depth).get(0).key());
         }
         depth = depth + 1;
         numIters = iteratorPerDepth.get(depth).size();
@@ -310,7 +303,6 @@ public class LFTJ {
             for (int i = 0; i < iteratorPerDepth.get(depth).size(); i++) {
                 System.out.println("Info of iterator " + Integer.toString(i) + ": " +
                         iteratorPerDepth.get(depth).get(i).debugString());
-                System.out.println(depth + " - " + key);
             }
         }
     }

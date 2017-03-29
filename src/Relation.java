@@ -121,6 +121,9 @@ public class Relation implements Iterable<Integer>{
            public void up(){
                if(indexDepth >= 0){
                    indexDepth--;
+                   if(indexDepth < 0){
+                       indexTuple = 0;
+                   }
                    findTupleLowerBound();
                    findTupleUpperBound();
                } else {
