@@ -6,6 +6,8 @@
 package src;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -19,8 +21,28 @@ public class Relation implements Iterable<Integer>{
     
     Relation(int[][] relArray) {
         this.array = relArray;
+//        printArray(this.array);
         this.arrayDepth = array.length;
     }
+
+    private static void printArray(int[][] anArray) {
+        System.out.println("---Printing array of iterator---");
+        for (int i = 0; i < anArray.length; i++) {
+            System.out.print("[");
+            boolean first = true;
+            for (int j = 0; j < anArray[0].length; j++){
+                if(first){
+                    first = false;
+                } else {
+                    System.out.print(", ");
+                }
+                System.out.print(anArray[i][j]);
+            }
+            System.out.print("]");
+        }
+        System.out.println("\n---Stop printing array---");
+    }
+
 
     @Override
     public RelationIterator<Integer> iterator() {
@@ -108,11 +130,16 @@ public class Relation implements Iterable<Integer>{
                    tupleLowerBound = 0;
                    int searchDepth = indexDepth - 1;
                    for (int i = searchDepth; i >= 0; i--) {
-                       int levelKey = array[indexTuple][searchDepth];
-                       for (int j = indexTuple; j >= 0 && array[j][searchDepth] > tupleLowerBound; j--) {
-                           if (levelKey != array[j][searchDepth]) {
-                               tupleLowerBound = j - 1;
-                               break;
+                       if(array.length <= indexTuple){
+                           tupleLowerBound = indexTuple;
+                       }
+                       else {
+                           int levelKey = array[indexTuple][searchDepth];
+                           for (int j = indexTuple; j >= 0 && array[j][searchDepth] > tupleLowerBound; j--) {
+                               if (levelKey != array[j][searchDepth]) {
+                                   tupleLowerBound = j - 1;
+                                   break;
+                               }
                            }
                        }
                    }
@@ -127,17 +154,31 @@ public class Relation implements Iterable<Integer>{
                    tupleUpperBound = array.length-1;
                    int searchDepth = indexDepth - 1;
                    for(int i = searchDepth; i >= 0; i--){
-                       int levelKey = array[indexTuple][searchDepth];
-                       for(int j = indexTuple; j < array.length && j <= tupleUpperBound; j++){
-                           if (levelKey != array[j][searchDepth]){
-                               tupleUpperBound = j-1;
-                               break;
+                       if(array.length <= indexTuple){
+                           tupleUpperBound = array.length-1;
+                       }
+                       else {
+                           int levelKey = array[indexTuple][searchDepth];
+                           for(int j = indexTuple; j < array.length && j <= tupleUpperBound; j++){
+                               if (levelKey != array[j][searchDepth]){
+                                   tupleUpperBound = j-1;
+                                   break;
+                               }
                            }
                        }
                    }
                } else {
                    tupleUpperBound = array.length-1;
                }
+           }
+
+           //return the complete value of a tuple that was found to be correct.
+           public ArrayList<java.lang.Integer> giveResult(){
+               ArrayList<java.lang.Integer> myList = new ArrayList<java.lang.Integer>();
+               for (int j = 0; j < array[0].length; j++){
+                   myList.add(array[indexTuple][j]);
+               }
+               return myList;
            }
 
            @Override

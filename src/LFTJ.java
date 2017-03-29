@@ -23,16 +23,16 @@ public class LFTJ {
     private int depth = 0;
     private int maxDepth = 0; // how deep is our relation? R(x,y), T(y,z) yields 2.
     private int key = 0;
-    private ArrayList<Integer> currentTuple = new ArrayList<>();
     private boolean atEnd;
+    private RelationIterator curIt; // curIt is our current iterator
     
     private LFTJ() throws IOException {
         // Create some fictive relations (later to be replaced with existing datasets)
         // Note: it only works if these arrays are sorted
         // Either we have to always sort these arrays first or we need to change the seek method in relation
-        Relation relA = new Relation(new int[][]{{1,3},{1,5},{1,6},{3,3},{3,7},{5,5},{6,3}});
-        Relation relB = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1}});
-        Relation relC = new Relation(new int[][]{{1,2},{1,5},{2,3},{3,7},{5,5},{7,1}});
+//        Relation relA = new Relation(new int[][]{{1,3},{1,5},{1,6},{3,3},{3,7},{5,5},{6,3}});
+//        Relation relB = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1}});
+//        Relation relC = new Relation(new int[][]{{1,2},{1,5},{2,3},{3,7},{5,5},{7,1}});
 
         DataImporter di = new DataImporter("./data/test.txt");
         Relation relD = di.getRelArray();
@@ -45,11 +45,11 @@ public class LFTJ {
 
         //create iterators for each relation and put all iterators in an array
         relIts = new ArrayList<>();
-        relIts.add(relA.iterator());
-        relIts.add(relB.iterator());
-        relIts.add(relC.iterator());
-        //relIts.add(relD.iterator());
-        //relIts.add(relE.iterator());
+//        relIts.add(relA.iterator());
+//        relIts.add(relB.iterator());
+//        relIts.add(relC.iterator());
+        relIts.add(relD.iterator());
+        relIts.add(relE.iterator());
         numIters = relIts.size();
 
         //create an array that will hold the results
@@ -89,22 +89,27 @@ public class LFTJ {
                 if(debug>=1) { printDebugInfo("C1"); }
 
                 if(depth == maxDepth-1){
-
-                    if(debug>=1) { printDebugInfo("C2"); }
-                    ArrayList<Integer> tuple = new ArrayList<>();
-                    currentTuple.add(key);
-                    if(debug>=1) {
-                        System.out.println("ADDED =[" + currentTuple.get(0) + "][" + currentTuple.get(1) + "] - "
-                                + currentTuple.size());
+                    boolean testForEnd = false;
+                    for(RelationIterator<Integer> relIt : relIts) {
+                        if(relIt.atEnd()) {
+                            testForEnd = true;
+                        }
                     }
 
-                    tuple.add(currentTuple.get(0));
-                    tuple.add(currentTuple.get(1));
+                    if(atEnd){
+                        if(debug>=1) {System.out.println("WE WERE AT THE ENDDDDD");}
+                        break;
+                    }
+
+                    if(debug>=1) { printDebugInfo("C2"); }
+                    ArrayList tuple = curIt.giveResult();
+                    if(debug>=1) {
+                        System.out.println("ADDED =[" + tuple.get(0) + "][" + tuple.get(1) + "] - "
+                                + tuple.size());
+                    }
                     result.add(tuple);
 
-                    if(debug>=1) { System.out.println(currentTuple); System.out.println(result); }
-
-                    currentTuple.remove(currentTuple.size()-1);
+                    if(debug>=1) { System.out.println(result); }
 
                     if(atEnd){
                         if(debug>=1){System.out.println("Depth -> Level up, followed by leapfroginit");}
@@ -156,9 +161,6 @@ public class LFTJ {
      * Function which searches for a match in the leapfrogtreejoin. Created as in the paper.
      */
     private void leapfrogSearch() {
-        // curIt is our current iterator
-        RelationIterator curIt;
-        
         // maxKeyIndex is the index of the maximal element we found and maxKey is the actual value.
         // (Correction needed since -1 % 3 returns -1 and not 2 as we want)
         int maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
@@ -243,9 +245,6 @@ public class LFTJ {
      * Calls? - Calls leapfrogInit afterwards to start up the next search.
      */
     private void leapfrogOpen(){
-        if(depth > -1){
-            currentTuple.add(relIts.get(0).key());
-        }
         depth = depth + 1;
         for(RelationIterator relIt : relIts ) {
             relIt.open();
@@ -257,7 +256,6 @@ public class LFTJ {
      * Function which opens one level up for every iterator
      */
     private void leapfrogUp(){
-        currentTuple.remove(currentTuple.size()-1);
         for(RelationIterator relIt : relIts ) {
             relIt.up();
         }
