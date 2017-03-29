@@ -17,7 +17,11 @@ import java.util.NoSuchElementException;
 public class Relation implements Iterable<Integer>{
     private int[][] array;
     private int arrayDepth;
-    
+    private int uid; // UID
+
+    public void setUid(int uid) {
+        this.uid = uid;
+    }
     
     Relation(int[][] relArray) {
         this.array = relArray;
@@ -115,7 +119,7 @@ public class Relation implements Iterable<Integer>{
            //returns to the parent key at the previous depth
            @Override
            public void up(){
-               if(indexDepth > 0){
+               if(indexDepth >= 0){
                    indexDepth--;
                    findTupleLowerBound();
                    findTupleUpperBound();
@@ -183,12 +187,12 @@ public class Relation implements Iterable<Integer>{
 
            @Override
            public String debugString(){
-               if(indexTuple < array.length){
-                   return "tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iTuple: " + indexTuple +
+               if(indexTuple < array.length && indexDepth >= 0){
+                   return "uid: " + uid + ", tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iTuple: " + indexTuple +
                            " , iDepth: " + indexDepth + ", key: "+ array[indexTuple][indexDepth];
                } else {
-                   return "tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iTuple: " + indexTuple +
-                           " , iDepth: " + indexDepth + ", key: Out Of Bound";
+                   return "uid: " + uid + ", tLB: " + tupleLowerBound + ", tUB: " + tupleUpperBound + " - iTuple: " +
+                           indexTuple + " , iDepth: " + indexDepth + ", key: Out Of Bound";
                }
            }
        };
