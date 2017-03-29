@@ -46,7 +46,6 @@ public class DataImporter {
         }
 
         Relation result = new Relation(relArray);
-        br.close();
         return result;
     }
 
