@@ -15,7 +15,7 @@ import java.util.Collections;
  */
 public class LFTJ {
 
-    private int debug = 3; // Represents the amount of debugging. 0 = None, 3 = Extreme
+    private int debug = 0; // Represents the amount of debugging. 0 = None, 3 = Extreme
     
     private ArrayList<RelationIterator<Integer>> relIts; //array of iterators, one for each relation
     private ArrayList<ArrayList<Integer>> result; //result set: array with tuples
@@ -32,16 +32,16 @@ public class LFTJ {
         // Create some fictive relations (later to be replaced with existing datasets)
         // Note: it only works if these arrays are sorted
         // Either we have to always sort these arrays first or we need to change the seek method in relation
-//        Relation rel1 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
-//        Relation rel2 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
-//        Relation rel3 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+        Relation rel1 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+        Relation rel2 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+        Relation rel3 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
 
-        DataImporter di = new DataImporter("./data/test.txt");
-        Relation rel1 = di.getRelArray();
-        di = new DataImporter("./data/test.txt");
-        Relation rel2 = di.getRelArray();
-        di = new DataImporter("./data/test.txt");
-        Relation rel3 = di.getRelArray();
+//        DataImporter di = nmaar ew DataImporter("./data/test.txt");
+//        Relation rel1 = di.getRelArray();
+//        di = new DataImporter("./data/test.txt");
+//        Relation rel2 = di.getRelArray();
+//        di = new DataImporter("./data/test.txt");
+//        Relation rel3 = di.getRelArray();
 
 
         rel1.setUid(1);
