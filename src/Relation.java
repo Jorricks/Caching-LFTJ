@@ -73,7 +73,22 @@ public class Relation implements Iterable<Integer>{
 
            @Override
            public Integer next() {
-               indexTuple ++;
+               int incindex = array.length;
+               if(indexTuple>tupleUpperBound){
+                   return key;
+               }
+               for (int i = indexDepth; i >= 0; i--) {
+                   int levelKey = array[indexTuple][i];
+                   for (int j = indexTuple; j < array.length; j++) {
+                       if (levelKey != array[j][i]) {
+                           if(j < incindex){
+                               incindex = j;
+                           }
+                           break;
+                       }
+                   }
+               }
+               indexTuple = incindex;
                return key;
            }
 
@@ -131,6 +146,10 @@ public class Relation implements Iterable<Integer>{
                }
            }
 
+           //returns the uid
+           @Override
+           public int getUid() { return uid; }
+
            //returns the lowest tuple index of all elements having the same parents(in the tree)
            void findTupleLowerBound(){
                if(indexDepth > 0) {
@@ -144,7 +163,9 @@ public class Relation implements Iterable<Integer>{
                            int levelKey = array[indexTuple][searchDepth];
                            for (int j = indexTuple; j >= 0 && array[j][searchDepth] > tupleLowerBound; j--) {
                                if (levelKey != array[j][searchDepth]) {
-                                   tupleLowerBound = j - 1;
+//                                   if(j-1 > tupleLowerBound){
+                                       tupleLowerBound = j - 1;
+//                                   }
                                    break;
                                }
                            }
@@ -168,7 +189,9 @@ public class Relation implements Iterable<Integer>{
                            int levelKey = array[indexTuple][searchDepth];
                            for(int j = indexTuple; j < array.length && j <= tupleUpperBound; j++){
                                if (levelKey != array[j][searchDepth]){
-                                   tupleUpperBound = j-1;
+//                                   if(j-1 < tupleLowerBound){
+                                       tupleUpperBound = j - 1;
+//                                   }
                                    break;
                                }
                            }

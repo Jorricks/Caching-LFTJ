@@ -32,9 +32,17 @@ public class LFTJ {
         // Create some fictive relations (later to be replaced with existing datasets)
         // Note: it only works if these arrays are sorted
         // Either we have to always sort these arrays first or we need to change the seek method in relation
-        Relation rel1 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
-        Relation rel2 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
-        Relation rel3 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+//        Relation rel1 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+//        Relation rel2 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+//        Relation rel3 = new Relation(new int[][]{{1,4},{1,5},{1,7},{2,4},{2,8},{3,4},{3,7},{5,5},{6,1},{7,1}});
+
+        DataImporter di = new DataImporter("./data/test.txt");
+        Relation rel1 = di.getRelArray();
+        di = new DataImporter("./data/test.txt");
+        Relation rel2 = di.getRelArray();
+        di = new DataImporter("./data/test.txt");
+        Relation rel3 = di.getRelArray();
+
 
         rel1.setUid(1);
         rel2.setUid(2);
@@ -43,11 +51,6 @@ public class LFTJ {
         RelationIterator<Integer> rel1iterator = rel1.iterator();
         RelationIterator<Integer> rel2iterator = rel2.iterator();
         RelationIterator<Integer> rel3iterator = rel3.iterator();
-
-//        DataImporter di = new DataImporter("./data/test.txt");
-//        Relation rel4 = di.getRelArray();
-//        di = new DataImporter("./data/test.txt");
-//        Relation rel5 = di.getRelArray();
 
         // We define the amount of items in a tuple in the data set..
         // @To-Do: Get this parameter of the set when reading. {1} is 1, {1,5,3} is 3
@@ -58,8 +61,6 @@ public class LFTJ {
         relIts.add(rel1iterator);
         relIts.add(rel2iterator);
         relIts.add(rel3iterator);
-//        relIts.add(rel4.iterator());
-//        relIts.add(rel5.iterator());
         numIters = relIts.size();
 
         iteratorPerDepth = new ArrayList<>();
@@ -94,7 +95,7 @@ public class LFTJ {
         leapfrogOpen();
 
         while (true){ // This is our search function
-            if(debug>=1) { printDebugInfo("A"); }
+            if(debug>=2) { printDebugInfo("A"); }
 
             // If we did not find the specific value we were looking for
             if(atEnd){
@@ -105,14 +106,16 @@ public class LFTJ {
                     break;
                 }
                 // or we go a level upwards and search for the next value.
-                if(debug>=1){System.out.println("Depth "+depth+ " -> Level up, followed by leapfroginit");}
+                if(debug>=2){System.out.println("Depth "+depth+ " -> Level up, followed by leapfroginit");}
+                if(depth!=0){
+                    iteratorPerDepth.get(depth).get(findLowestIndex(iteratorPerDepth.get(depth))).next();
+                }
                 leapfrogUp();
                 leapfrogInit();
-                leapfrogNext();
                 if(debug>=2) { printDebugInfo("B4");}
 
             } else {
-                if(debug>=1) { printDebugInfo("C1"); }
+                if(debug>=2) { printDebugInfo("C1"); }
 
                 if(depth == maxDepth){ // Als het niet werkt moet je ff -1 erbij zetten
                     boolean testForEnd = false;
@@ -122,10 +125,10 @@ public class LFTJ {
                         }
                     }
 
-                    if(testForEnd){ if(debug>=1) {System.out.println("WE WERE AT THE ENDDDDD");}}
+                    if(testForEnd){ if(debug>=2) {System.out.println("WE WERE AT THE ENDDDDD");}}
 
                     // WE GOT A WINNERRR
-                    if(debug>=1) { printDebugInfo("C2"); }
+                    if(debug>=2) { printDebugInfo("C2"); }
                     ArrayList<Integer> tuple = new ArrayList<>();
                     currentTuple.add(key);
                     tuple.addAll(currentTuple);
@@ -134,14 +137,14 @@ public class LFTJ {
 
                     if(debug>=1) {System.out.println(result); }
 
-                    if(debug>=1){System.out.println("We increase our current iterator by one");}
+                    if(debug>=2){System.out.println("We increase our current iterator by one");}
                     leapfrogNext();
-                    if(debug>=1) { printDebugInfo("C3"); }
+                    if(debug>=2) { printDebugInfo("C3"); }
 
                 } else {
 
-                    if(debug>=1) {System.out.println("C4"); }
-                    if(debug>=1){System.out.println("Depth -> Level down");}
+                    if(debug>=2) {System.out.println("C4"); }
+                    if(debug>=2){System.out.println("Depth -> Level down");}
                     leapfrogOpen();
 
                 }
@@ -181,12 +184,16 @@ public class LFTJ {
     private void leapfrogSearch() {
         // maxKeyIndex is the index of the maximal element we found and maxKey is the actual value.
         // (Correction needed since -1 % 3 returns -1 and not 2 as we want)
-//        int maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
-        int maxKeyIndex = iteratorPerDepth.get(depth).size()-1;
-        if(debug>=1){ System.out.println("Depth: "+depth+" maxKeyIndex: "+maxKeyIndex+" numIters: "+numIters);}
+        int maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
+        if(numIters == 1){
+            maxKeyIndex = 0;
+        }
         int maxKey = iteratorPerDepth.get(depth).get(maxKeyIndex).key();
-        printDebugInfo("Info van de maxKeyIndex -> " + iteratorPerDepth.get(depth).get(maxKeyIndex).debugString());
-        if(debug>=1) { printDebugInfo("We got maxKey = "+maxKey+" and maxKeyIndex = "+maxKeyIndex);}
+
+        if(debug>=2){ System.out.println("Depth: "+depth+" maxKeyIndex: "+maxKeyIndex+" numIters: "+numIters);}
+        if(debug>=2) { printDebugInfo("Info van de maxKeyIndex -> " +
+                iteratorPerDepth.get(depth).get(maxKeyIndex).debugString());}
+        if(debug>=2) { printDebugInfo("We got maxKey = "+maxKey+" and maxKeyIndex = "+maxKeyIndex);}
         
         while (true) {
             // Getting the minimum key, with safe guard to avoid overflow
@@ -195,23 +202,23 @@ public class LFTJ {
                 return;
             }
             int minKey = iteratorPerDepth.get(depth).get(p).key();
-            if(debug>=1) {System.out.println("curIt values: "+iteratorPerDepth.get(depth).get(p).debugString());}
+            if(debug>=2) {System.out.println("curIt values: "+iteratorPerDepth.get(depth).get(p).debugString());}
 
             // If the keys are equal it means we found something where are three are equal. We thus return
             if (maxKey == minKey) {
                 key = minKey;
-                if(debug>=1) {System.out.println("Found key = "+key);}
+                if(debug>=2) {System.out.println("Found key = "+key);}
                 return;
             } 
             // If no common key is found, update pointer of iterator
             else {
-                if(debug>=1) {System.out.println("Key not equal, Searching for "+maxKey+" with minkey "+minKey);}
+                if(debug>=2) {System.out.println("Key not equal, Searching for "+maxKey+" with minkey "+minKey);}
 
                 // We seek for our maxKey, if this is found
 //                leapfrogSeek(maxKey);
                 iteratorPerDepth.get(depth).get(p).seek(maxKey);
                 if(iteratorPerDepth.get(depth).get(p).atEnd()){ // The maxKey is not found
-                    if(debug>=1) {System.out.println("key = -1");}
+                    if(debug>=2) {System.out.println("key = -1");}
                     atEnd = true;
                     return;
                 } else { // The maxKey is found and thus we check if the next iterator can also find it
@@ -267,7 +274,7 @@ public class LFTJ {
             currentTuple.add(iteratorPerDepth.get(depth).get(0).key());
         }
         depth = depth + 1;
-        numIters = iteratorPerDepth.get(depth).size();
+        updateIterPandNumIters();
         for(RelationIterator relIt : iteratorPerDepth.get(depth) ) {
             relIt.open();
         }
@@ -285,9 +292,47 @@ public class LFTJ {
             relIt.up();
         }
         depth = depth - 1;
-        numIters = iteratorPerDepth.get(depth).size();
+        updateIterPandNumIters();
     }
 
+    /**
+     * Name says it all right :)!
+     */
+    private void updateIterPandNumIters(){
+        numIters = iteratorPerDepth.get(depth).size();
+        if(numIters<p){
+            p = 0;
+        }
+    }
+
+    /**
+     * Finds the index in the iteratorPerDepth.get(depth) with the lowest uid of the given iterators.
+     */
+    private int findLowestIndex(ArrayList<RelationIterator<Integer>> listOfItters){
+        int indexOfLowest = 0;
+        int lowestValue = listOfItters.get(0).getUid();
+        for(int i=0; i<listOfItters.size();i++){
+            if(listOfItters.get(i).getUid()<lowestValue){
+                indexOfLowest = i;
+                lowestValue = listOfItters.get(i).getUid();
+            }
+        }
+        return indexOfLowest;
+    }
+    /**
+     * Finds the index in the iteratorPerDepth.get(depth) with the lowest uid of the given iterators.
+     */
+    private int findHighestIndex(ArrayList<RelationIterator<Integer>> listOfItters){
+        int indexOfHighest = 0;
+        int highestValue = listOfItters.get(0).getUid();
+        for(int i=0; i<listOfItters.size();i++){
+            if(listOfItters.get(i).getUid()>highestValue){
+                indexOfHighest = i;
+                highestValue = listOfItters.get(i).getUid();
+            }
+        }
+        return indexOfHighest;
+    }
 
     /**
      * Function to print debug information

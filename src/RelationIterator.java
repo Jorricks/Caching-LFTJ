@@ -24,6 +24,8 @@ public interface RelationIterator<Integer> extends Iterator, Comparable<Relation
 
     void up();
 
+    int getUid();
+
     ArrayList<java.lang.Integer> giveResult();
 
     String debugString();
