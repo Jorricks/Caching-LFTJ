@@ -39,7 +39,7 @@ public class LFTJ {
      * @param CycleOrRounds Specifies whether we are looking for # rounds or a complete cycle.
      * @param amountOfRelations Specifies the # of rounds/relations in the round or cycle.
      * When? At the start of the program.
-     * Calls? When all iterators are still 'alive' we call leapfrogSearch
+     * Calls? When all iterators are still 'alive' we call leapfrogSearch.
      */
     private void initDataSets(String fileName, Enum CycleOrRounds, int amountOfRelations) throws IOException{
         ArrayList<RelationIterator<Integer>> relIts = new ArrayList<>();
@@ -66,7 +66,7 @@ public class LFTJ {
                 iteratorPerDepth.add(intermedAListForIterators);
             }
         }
-        if(CycleOrRounds == CycleOrRoundsEnum.ROUNDS) {
+        if(CycleOrRounds == CycleOrRoundsEnum.CYCLE) {
             System.out.println("Not implemented yet...");
             throw new UnsupportedOperationException("Cycles are not supported yet");
         }
@@ -76,7 +76,7 @@ public class LFTJ {
     /**
      * Function which initializes the algorithm.
      * When? At the start after each time a key was found or we went a level higher.
-     * Calls? When all iterators are still 'alive' we call leapfrogSearch
+     * Calls? When all iterators are still 'alive' we call leapfrogSearch.
      */
     private void multiJoin(){
         // Start out by initializing/starting the algorithm with leapfrogOpen. This is the main loop.
@@ -123,7 +123,7 @@ public class LFTJ {
     /**
      * Function which initializes the algorithm.
      * When? At the start after each time a key was found or we went a level higher.
-     * Calls? When all iterators are still 'alive' we call leapfrogsearch
+     * Calls? When all iterators are still 'alive' we call leapfrogsearch.
      */
     private void leapfrogInit() {
         // Checking if any iterator is empty return (empty) result array
@@ -186,11 +186,11 @@ public class LFTJ {
     }
 
     /**
-     * Function which sets the current iterator at the next value
+     * Function which sets the current iterator at the next value.
      * When? - This function is used when we just found a matching tuple which all iterators had.
      * Calls? - Calls leapfrogUp() until at the top.
-     * Calls? - Sets the current iterator to the next
-     * Calls? - If the current iterator is not at the end, we set the next iterator and execute leapfrogSearch()
+     * Calls? - Sets the current iterator to the next.
+     * Calls? - If the current iterator is not at the end, we set the next iterator and execute leapfrogSearch().
      */
     private void leapfrogNext(){
         atEnd = false;
@@ -204,10 +204,10 @@ public class LFTJ {
     }
 
     /**
-     * Function which seeks for a specific key in the current iterator
+     * Function which seeks for a specific key in the current iterator.
      * @param seekKey - The specific value we are searching for.
-     * When? - This function is stated in the paper, however, never used..
-     * Calls? - Calls leapfrogSearch for the next iterator if we found the key
+     * When? - This function is stated in the paper, however, never used...
+     * Calls? - Calls leapfrogSearch for the next iterator if we found the key.
      */
     private void leapfrogSeek(int seekKey){
         iteratorPerDepth.get(depth).get(p).seek(seekKey);
@@ -223,7 +223,7 @@ public class LFTJ {
      * Function which opens up the next level(goes one level down) for all iterators.
      * When? - This function is used when we are going to the next level.
      * Calls? - Calls leapfrogInit afterwards to start up the next search.
-     * Calls? - Calls updateIterPandNumIters which makes sure our p does not go out of bound and numIters is updated
+     * Calls? - Calls updateIterPandNumIters which makes sure our p does not go out of bound and numIters is updated.
      * Modifies - currenTuple. Adds the current key to currentTuple and then proceeds with the opening.
      */
     private void leapfrogOpen(){
@@ -240,9 +240,9 @@ public class LFTJ {
 
     /**
      * Function which goes up one level up for every iterator at this specific depth.
-     * When? - This function is used when we are going to a lower depth
+     * When? - This function is used when we are going to a lower depth.
      * Calls? - Calls leapfrogInit afterwards to start up the next search.
-     * Calls? - Calls updateIterPandNumIters which makes sure our p does not go out of bound and numIters is updated
+     * Calls? - Calls updateIterPandNumIters which makes sure our p does not go out of bound and numIters is updated.
      * Modifies - currentTuple. Removes the last added item which was the one from the depth just before we call up.
      */
     private void leapfrogUp(){
@@ -257,9 +257,9 @@ public class LFTJ {
     }
 
     /**
-     * Makes sure our p does not go out of bound and numIters is updated
-     * Modifies - numIters to match with this depth
-     * Modifies - p, if p is out of bound for the current depth, we set it to 0
+     * Makes sure our p does not go out of bound and numIters is updated.
+     * Modifies - numIters to match with this depth.
+     * Modifies - p, if p is out of bound for the current depth, we set it to 0.
      */
     private void updateIterPandNumIters(){
         numIters = iteratorPerDepth.get(depth).size();
@@ -269,7 +269,7 @@ public class LFTJ {
     }
 
     /**
-     * Function to print debug information
+     * Function to print debug information.
      */
     private void printDebugInfo(String message){
         if (message.length()>=1){
@@ -285,7 +285,7 @@ public class LFTJ {
 
    
     /**
-     * @param args the command line arguments
+     * @param args the command line arguments.
      */
     public static void main(String[] args) throws IOException {
         LFTJ lftj = new LFTJ(); // Create a LFTJ, load the datasets and ready to rumble

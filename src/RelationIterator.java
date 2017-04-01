@@ -5,7 +5,6 @@
  */
 package src;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 
 public interface RelationIterator<Integer> extends Iterator, Comparable<RelationIterator<Integer>> {
@@ -19,10 +18,6 @@ public interface RelationIterator<Integer> extends Iterator, Comparable<Relation
     void open();
 
     void up();
-
-    int getUid();
-
-    ArrayList<java.lang.Integer> giveResult();
 
     String debugString();
     
