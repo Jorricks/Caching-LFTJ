@@ -22,7 +22,7 @@ public class LFTJ {
     private int maxDepth = 0; // How deep is our relation? R(x,y), T(y,z) yields 2.
     private int key = 0; // Contains the key value when we find a matching search in leapfrogSearch.
     private boolean atEnd; // Mirrors whether there is an iterator at his end.
-    private enum CycleOrRoundsEnum { CYCLE, ROUNDS }; // Whether we want the relations to be a cycle or a round.
+    private enum CycleOrRoundsEnum { CYCLE, ROUNDS } // Whether we want the relations to be a cycle or a round.
 
     /**
      * Constructor of this class
