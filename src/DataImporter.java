@@ -5,13 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Brent on 21-Mar-17.
- */
 public class DataImporter {
     private BufferedReader br;
 
-    public DataImporter(String fileName) throws IOException {
+    DataImporter(String fileName) throws IOException {
         try {
             File file = new File(fileName);
             br = new BufferedReader((new FileReader(file)));
@@ -20,11 +17,11 @@ public class DataImporter {
         }
     }
 
-    public Relation getRelArray() throws IOException {
-        List<List<Integer>> relArrayList = new ArrayList<List<Integer>>();
+    TreeRelation getRelArray() throws IOException {
+        List<List<Integer>> relArrayList = new ArrayList<>();
 
         // While we have not reached the end of file
-        while (br.ready() == true) {
+        while (br.ready()) {
             String line = br.readLine();
             // Ignore comment lines that start with #
             if (line.charAt(0) != '#') {
@@ -36,7 +33,7 @@ public class DataImporter {
             }
         }
 
-        // Convert Relation ArrayList to Array
+        // Convert TreeRelation ArrayList to Array
         int[][] relArray = new int[relArrayList.size()][];
         for (int i = 0; i < relArrayList.size(); i++) {
             relArray[i] = new int[relArrayList.get(i).size()];
@@ -45,13 +42,12 @@ public class DataImporter {
             }
         }
 
-        Relation result = new Relation(relArray);
-        return result;
+        return new TreeRelation(relArray, true);
     }
 
     // Main method for testing purposes
     public static void main(String[] args) throws IOException {
         DataImporter di = new DataImporter("./data/test.txt");
-        Relation relation = di.getRelArray();
+        TreeRelation relation = di.getRelArray();
     }
 }

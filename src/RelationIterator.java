@@ -7,10 +7,6 @@ package src;
 
 import java.util.Iterator;
 
-/**
- *
- * @author s131061
- */
 public interface RelationIterator<Integer> extends Iterator, Comparable<RelationIterator<Integer>> {
     
     int key();
