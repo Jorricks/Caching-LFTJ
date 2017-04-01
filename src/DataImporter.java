@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Brent on 21-Mar-17.
- */
 public class DataImporter {
     private BufferedReader br;
 
@@ -20,8 +17,8 @@ public class DataImporter {
         }
     }
 
-    public Relation getRelArray() throws IOException {
-        List<List<Integer>> relArrayList = new ArrayList<List<Integer>>();
+    public TreeRelation getRelArray() throws IOException {
+        List<List<Integer>> relArrayList = new ArrayList<>();
 
         // While we have not reached the end of file
         while (br.ready() == true) {
@@ -36,7 +33,7 @@ public class DataImporter {
             }
         }
 
-        // Convert Relation ArrayList to Array
+        // Convert TreeRelation ArrayList to Array
         int[][] relArray = new int[relArrayList.size()][];
         for (int i = 0; i < relArrayList.size(); i++) {
             relArray[i] = new int[relArrayList.get(i).size()];
@@ -45,13 +42,13 @@ public class DataImporter {
             }
         }
 
-        Relation result = new Relation(relArray);
+        TreeRelation result = new TreeRelation(relArray, true);
         return result;
     }
 
     // Main method for testing purposes
     public static void main(String[] args) throws IOException {
         DataImporter di = new DataImporter("./data/test.txt");
-        Relation relation = di.getRelArray();
+        TreeRelation relation = di.getRelArray();
     }
 }

@@ -49,6 +49,7 @@ class TreeNode {
     // When calling next, we ask the parent for the next child.
     TreeNode next(){
         return parent.parentGetNextNode(childNumber);
+//        if(childNumber + 1 >= parent.getAmountOfChildren()){return this;}else{}
     }
     private TreeNode parentGetNextNode(int currentChild){
         return children.get(currentChild+1);
@@ -64,6 +65,10 @@ class TreeNode {
 
     int getAmountOfChildren(){
         return children.size();
+    }
+
+    int getBornIndexOfThisChild(){
+        return childNumber;
     }
 
     TreeNode getChild(int numberOfChild){

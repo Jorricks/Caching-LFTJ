@@ -6,6 +6,8 @@
 package src;
 
 
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+
 import java.util.ArrayList;
 
 /**
@@ -22,27 +24,43 @@ public class TreeRelation implements Iterable<Integer>{
         this.uid = uid;
     }
 
-    TreeRelation(int[][] relArray) {
-        this.rootNode = new TreeNode(0, -1,0);
+
+    TreeRelation(int[][] relArray, boolean debug) {
+        if(debug){ System.out.println("------------------------ LOADING IN DATA ------------------------");}
+        if(debug){ System.out.println("Add root =[-1]");}
+
+        this.rootNode = new TreeNode(-1, -1,0);
         int j = relArray[0][0];
+
+        if(debug){ System.out.println("Add parent =["+relArray[0][0]+"]");}
         currentNode = rootNode.addChild(relArray[0][0], 0, 0);
+
         int parentCounter = 1;
         int childCounter = 0;
+
         for(int i=0; i < relArray.length; i++){
             if(j == relArray[i][0]){
-                System.out.println("Add child =["+relArray[i][0]+"]["+relArray[i][1]+"] to parent "+currentNode.getKey());
+                if(debug){ System.out.println("Add child ["+currentNode.getKey()+"]["+relArray[i][1]+"]");}
+
                 this.currentNode.addChild(relArray[i][1], 1,childCounter);
                 childCounter++;
+
             } else {
-                System.out.println("Add parent =["+relArray[i][0]+"]["+relArray[i][1]+"]");
+                if(debug){ System.out.println("Add parent =["+relArray[i][0]+"]");}
+
                 currentNode = rootNode.addChild(relArray[i][0], 0, parentCounter);
                 parentCounter++;
-                j = relArray[0][0];
-                System.out.println("Add child =["+relArray[i][0]+"]["+relArray[i][1]+"] to parent "+currentNode.getKey());
+                j = relArray[i][0];
+
+                if(debug){ System.out.println("Add child ["+currentNode.getKey()+"]["+relArray[i][1]+"]");}
+
+                childCounter = 0;
                 this.currentNode.addChild(relArray[i][1], 1,childCounter);
                 childCounter++;
             }
         }
+        if(debug){ System.out.println("------------------------ FINISHED LOADING DATA ------------------------");}
+
         currentNode = rootNode;
     }
 
@@ -50,6 +68,8 @@ public class TreeRelation implements Iterable<Integer>{
     @Override
     public RelationIterator<Integer> iterator() {
         RelationIterator<Integer> relIt = new RelationIterator<Integer>() {
+
+            private boolean atEnd = false;
 
             //not sure that both index and key are needed, but it seems to work fine
 
@@ -65,7 +85,11 @@ public class TreeRelation implements Iterable<Integer>{
 
             @Override
             public Integer next() {
-                currentNode = currentNode.next();
+                if(currentNode.getBornIndexOfThisChild()+1 >= currentNode.getParent().getAmountOfChildren()){
+                    atEnd = true;
+                } else {
+                    currentNode = currentNode.next();
+                }
                 return currentNode.getKey();
             }
 
@@ -73,13 +97,12 @@ public class TreeRelation implements Iterable<Integer>{
             //or at the end if no such key exists
             @Override
             public void seek(int seekKey) {
-                int[] rangeOfSeekValue = exponentialSearch(currentNode.getParent(),seekKey);
-                binarySearch(currentNode.getParent(), rangeOfSeekValue[0], rangeOfSeekValue[1], seekKey);
+                binarySearch(currentNode.getParent(), currentNode.getBornIndexOfThisChild(), seekKey);
             }
 
             @Override
             public boolean atEnd() {
-                return currentNode.hasNext();
+                return atEnd;
             }
 
             //used for sorting
@@ -98,6 +121,7 @@ public class TreeRelation implements Iterable<Integer>{
             //returns to the parent key at the previous depth
             @Override
             public void up(){
+                atEnd = false;
                 currentDepth--;
                 currentNode = currentNode.up();
             }
@@ -108,33 +132,42 @@ public class TreeRelation implements Iterable<Integer>{
                 return uid;
             }
 
-            private int[] exponentialSearch(TreeNode parentNode, int searchValue){
-                int min = 1;
-                int max = parentNode.getAmountOfChildren();
-                int currentValue = parentNode.getChild(0).getKey();
-                while (currentValue < searchValue && min * 2 < max){
-                    min = min * 2;
-                    currentValue = parentNode.getChild(min-1).getKey();
-                }
-                return new int[]{min, Math.min(min*2, max)};
-            }
-
-            private void binarySearch(TreeNode parentNode, int minIndex, int maxIndex, int searchValue){
+            private void binarySearch(TreeNode parentNode, int minIndex, int searchValue){
                 int min = minIndex;
-                int max = maxIndex;
+                int max = parentNode.getAmountOfChildren();
                 while (max > min) {
                     int middle = (min + max) / 2;
-                    if(parentNode.getChild(middle-1).getKey() == searchValue){
+                    if(parentNode.getChild(middle).getKey() == searchValue){
                         max = middle;
                     }
-                    if(parentNode.getChild(middle-1).getKey() < searchValue){
+                    if(parentNode.getChild(middle).getKey() < searchValue){
                         min = middle + 1;
                     }
-                    if(parentNode.getChild(middle-1).getKey() > searchValue){
+                    if(parentNode.getChild(middle).getKey() > searchValue){
                         max = middle - 1;
                     }
                 }
-                currentNode = parentNode.getChild(max-1);
+                if(min >= parentNode.getAmountOfChildren()){
+                    atEnd = true;
+                    currentNode = parentNode.getChild(parentNode.getAmountOfChildren()-1);
+                } else {
+                    if(parentNode.getChild(min).getKey() == searchValue){
+                        currentNode = parentNode.getChild(min);
+                    }
+                    if(parentNode.getChild(min).getKey() < searchValue){
+                        int test = parentNode.getChild(min).getKey();
+                        if(min+1 == parentNode.getAmountOfChildren()){
+                            atEnd = true;
+                            currentNode = parentNode.getChild(parentNode.getAmountOfChildren()-1);
+                        } else {
+                            currentNode = parentNode.getChild(min + 1);
+                        }
+                    }
+                    if(parentNode.getChild(min).getKey() > searchValue){
+                        int test = parentNode.getChild(min).getKey();
+                        currentNode = parentNode.getChild(min);
+                    }
+                }
             }
 
 
@@ -145,7 +178,17 @@ public class TreeRelation implements Iterable<Integer>{
 
             @Override
             public String debugString(){
-                return "";
+                if(currentNode.getParent() != null){
+                return "uid: " + uid + ", key: " + key() + ", depth: " + currentNode.getDepth() +
+                        ", parentKey: " + currentNode.getParent().getKey() +
+                        ", amount of children: "+ currentNode.getAmountOfChildren() +
+                        ", get amount of brothers: "+ currentNode.getParent().getAmountOfChildren() +
+                        ", compared to brothers at index: "+currentNode.getBornIndexOfThisChild();
+                } else {
+                    return "uid: " + uid + ", key: " + key() + ", depth: " + currentNode.getDepth() +
+                            ", amount of children: "+ currentNode.getAmountOfChildren() +
+                            ", This is the root note...";
+                }
             }
         };
 
