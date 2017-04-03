@@ -5,8 +5,16 @@ import java.util.*;
 
 public class DataImporter {
     private BufferedReader br;
+    private boolean reverseOrder;
 
-    DataImporter(String fileName) throws IOException {
+    /**
+     * Constructor of this class
+     * @param fileName Path to the file
+     * @param reverseOrder Specifies whether the relation is stored in its original order
+     * @throws IOException If fileName is specified incorrectly
+     */
+    DataImporter(String fileName, boolean reverseOrder) throws IOException {
+        this.reverseOrder = reverseOrder;
         try {
             File file = new File(fileName);
             br = new BufferedReader((new FileReader(file)));
@@ -25,15 +33,23 @@ public class DataImporter {
             if (line.charAt(0) != '#') {
                 // Split on space
                 String[] split = line.split("\\s+");
-                int fromEdge = Integer.parseInt(split[0]);
-                int toEdge = Integer.parseInt(split[1]);
+                int fromEdge;
+                int toEdge;
+                if (!reverseOrder) {
+                    fromEdge = Integer.parseInt(split[0]);
+                    toEdge = Integer.parseInt(split[1]);
+                } else {
+                    fromEdge = Integer.parseInt(split[1]);
+                    toEdge = Integer.parseInt(split[0]);
+                }
                 relArrayList.add(Arrays.asList(fromEdge, toEdge));
             }
         }
 
-        // Convert TreeRelation ArrayList to Array
+        // Sort TreeRelation ArrayList
         relArrayList = sortRelArray(relArrayList);
 
+        // Convert TreeRelation ArrayList to Array
         int[][] relArray = new int[relArrayList.size()][];
         for (int i = 0; i < relArrayList.size(); i++) {
             relArray[i] = new int[relArrayList.get(i).size()];
@@ -45,7 +61,11 @@ public class DataImporter {
         return new TreeRelation(relArray, true);
     }
 
-    //Sort a relation array
+    /**
+     * Sort a Relation ArrayList
+     * @param relArrayList specifies the unsorted Relation ArrayList to sort
+     * @return Sorted Relation ArrayList
+     */
     private List<List<Integer>> sortRelArray(List<List<Integer>> relArrayList) {
         Collections.sort(relArrayList,new Comparator<List<Integer>>() {
             @Override
@@ -68,7 +88,7 @@ public class DataImporter {
 
     // Main method for testing purposes
     public static void main(String[] args) throws IOException {
-        DataImporter di = new DataImporter("./data/test.txt");
+        DataImporter di = new DataImporter("./data/test.txt", true);
         TreeRelation relation = di.getRelArray();
     }
 }
