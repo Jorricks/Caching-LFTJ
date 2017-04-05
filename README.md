@@ -19,4 +19,5 @@ The implementation was created by Lisette Sanchez, Brent van Striem and Jorrick 
 
 ## Reference
 [1] Todd L Veldhuizen. Leapfrog triejoin: a worst-case optimal join algorithm. arXiv:1210.0481, 2012.
+
 [2] Oren Kalinsky, Yoav Etsion, Benny Kimelfeld. Flexible Caching in Trie Joins. arXiv:1602.08721, 2016.
