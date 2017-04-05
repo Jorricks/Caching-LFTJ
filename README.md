@@ -10,11 +10,11 @@ Therefore the flexible caching was introduced in [2].
 Our implementation is such that the simulations are all in main memory, where we create a "cache" which marks
 which information would be cached by a real caching implementation. The implementation furthermore counts the amount of
 times a specific data item is already in cache and the amount of time it is not. With this information we tried to verify
-the results which were reported in [sdsds2]
+the results which were reported in [2]
 
-sdasdsadasd
 ## Credits
-This implementation was part of an assignment for 2IMW20 - Database technology at the Technical University of Technology Eindhoven.
+The implementation was created by Lisette Sanchez, Brent van Striem and Jorrick Sleijster as part of an assignment for
+2IMW20 - Database technology at the Technical University of Technology Eindhoven.
 
 
 ## Reference
