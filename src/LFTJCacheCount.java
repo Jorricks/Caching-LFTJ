@@ -8,31 +8,27 @@ package src;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-public class LFTJ {
+/**
+ *
+ * @author s131061
+ */
+public class LFTJCacheCount extends LFTJ{
+    ArrayList<Cache> caches;
+    int counter[];
+    int totalCacheHits;
+    int v = 0;
+    ArrayList<Integer> owned = new ArrayList<>();
+    ArrayList<Integer> adhesion = new ArrayList<>();
+    TreeDecomposition td;
+    int cacheHitJumpCounter = 0;
+    
+    
+    public LFTJCacheCount() throws IOException {
 
-    public int debug = 0; // Represents the amount of debugging. 0 = None, 3 = Extreme
-
-    public ArrayList<ArrayList<Integer>> result; // Result set: array with tuples
-    public ArrayList<ArrayList<RelationIterator<Integer>>> iteratorPerDepth; // Contains the iterator for each dept
-    public ArrayList<Integer> currentTuple = new ArrayList<>(); // Contains the key values of all parents
-    public int p = 0; // Current iterator pointer
-    public int numIters; // Number of iterators at this depth
-    public int depth = -1; // Current depth
-    public int maxDepth = 0; // How deep is our relation? R(x,y), T(y,z) yields 2.
-    public int key = 0; // Contains the key value when we find a matching search in leapfrogSearch.
-    public boolean atEnd; // Mirrors whether there is an iterator at his end.
-    public enum CycleOrRoundsEnum { CYCLE, PATH } // Whether we want the relations to be a cycle or a path.
-
-    /**
-     * Constructor of this class
-     */
-    public LFTJ() throws IOException {
-
-        initDataSets("./data/self-created-test.txt", CycleOrRoundsEnum.PATH, 4);
-        result = new ArrayList<>(); //create an array that will hold the results
     }
-
     /**
      * Function which initializes the data sets and converts the data sets into iterators.
      * @param fileName The path from this sources root to the data set.
@@ -41,18 +37,33 @@ public class LFTJ {
      * When? At the start of the program.
      * Calls? When all iterators are still 'alive' we call leapfrogSearch.
      */
+    @Override
     public void initDataSets(String fileName, Enum CycleOrRounds, int amountOfPathOrCycle) throws IOException{
+        caches = new ArrayList<>();
+        //create tree decomposition
+        td = new TreeDecomposition(CycleOrRounds, amountOfPathOrCycle);
+        //create cache and counter for each bag and initialize to zero
+        counter = new int[td.nrOfBags];
+        for(int i = 0; i < td.nrOfBags; i++){
+            caches.add(new Cache());
+            counter[i] = 0;
+            //System.out.println("Cache index "+i+ " : ");
+        }
+        //System.out.println("cache size "+ cache.size());
+        totalCacheHits = 0;
+        
+        
         //for a cycle we have as many relations as amountOfPathOrCycle, i.e. a 4-cycle query gives 4 relations
         int amountOfRelations = amountOfPathOrCycle;
         //for a path we have one less, i.e. a 4-path query gives 3 relations
-        if (CycleOrRounds == CycleOrRoundsEnum.PATH) {
+        if (CycleOrRounds == LFTJ.CycleOrRoundsEnum.PATH) {
             amountOfRelations--;
         }
         ArrayList<RelationIterator<Integer>> relIts = new ArrayList<>();
         int i;
         for(i = 1; i <= amountOfRelations; i++){
             DataImporter di;
-            if(CycleOrRounds == CycleOrRoundsEnum.CYCLE && i == amountOfRelations) {
+            if(CycleOrRounds == LFTJ.CycleOrRoundsEnum.CYCLE && i == amountOfRelations) {
                 di = new DataImporter("./data/test.txt");
             } else {
                 di = new DataImporter(fileName);
@@ -62,9 +73,6 @@ public class LFTJ {
             RelationIterator<Integer> relIterator = rel.iterator();
             relIts.add(relIterator);
         }
-        //maxDepth = i-1;
-        
-        
         
         maxDepth = amountOfPathOrCycle - 1;
        
@@ -76,13 +84,13 @@ public class LFTJ {
             int b = Math.min(j, maxDepth - 1);
             for (int k = a; k <= b; k++) {
                 intermedAListForIterators.add(relIts.get(k));
-                //System.out.println("added at depth " + j + " iterator " + k);
+                System.out.println("added at depth " + j + " iterator " + k);
             }
             
             //for a cycle query, we add for the first and last depth, the last iterator (this creates the cycle)
-            if((CycleOrRounds == CycleOrRoundsEnum.CYCLE) && (j == 0 || j == maxDepth)) {
+            if((CycleOrRounds == LFTJ.CycleOrRoundsEnum.CYCLE) && (j == 0 || j == maxDepth)) {
                 intermedAListForIterators.add(relIts.get(maxDepth));
-                //System.out.println("added at depth " + j + " iterator " + (maxDepth));
+                System.out.println("added at depth " + j + " iterator " + (maxDepth));
             }
             
             iteratorPerDepth.add(intermedAListForIterators);
@@ -96,10 +104,11 @@ public class LFTJ {
      * When? At the start after each time a key was found or we went a level higher.
      * Calls? When all iterators are still 'alive' we call leapfrogSearch.
      */
+    @Override
     public void multiJoin(){
         // Start out by initializing/starting the algorithm with leapfrogOpen. This is the main loop.
         leapfrogOpen();
-
+        
         while (true){ // This is our search function
             if(debug>=2) { printDebugInfo("A - Continue with the true loop"); }
 
@@ -110,7 +119,19 @@ public class LFTJ {
                     break;
                 }
                 // We continue the search. At this depth we were at the end, so we go one up and go to the next value.
+                //Before we go up, check if depth is first in bag, if so store cache (lines 22,23 from algorithm in paper)
+                if(v != 0 && depth == td.owned.get(v).get(0)) {
+                    VariableAssignment va = new VariableAssignment(adhesion.get(0), currentTuple.get(adhesion.get(0)));
+                    va.counter = counter[v];
+                    caches.get(v).addAssignment(va);
+                }
+                //Then go up..
                 leapfrogUp();
+                //And after we go up, check if depth is last in bag, if so update counter (lines 18-20 from algorithm in paper)
+                if(v != 0 && depth == td.owned.get(v).get(td.owned.get(v).size()-1)) {
+                    counter[v] = counter[v] + counter[v+1];
+                }
+                
                 leapfrogNext();
                 if(debug>=2) { printDebugInfo("B3 - Executed leapfrogUp and leapfrogNext");}
 
@@ -124,26 +145,41 @@ public class LFTJ {
                     currentTuple.remove(currentTuple.size()-1);
 
                     key = -1;
-
+                    
+                    //incrementer counter of bag
+                    counter[v] = counter[v] + 1;
+                    
                     if(debug>=1) {System.out.println(result); }
                     leapfrogNext();
-
+                } else if (depth > maxDepth) {
+                    for(int i = 0; i <= cacheHitJumpCounter; i++){
+                        leapfrogUp();
+                        System.out.println("went up to "+depth);
+                    }
+                    if(depth >= 0) {
+                        leapfrogNext();
+                    }
+                    //update total counter here??
                 } else {// We can still go level deeper.
                     if(debug>=2) {System.out.println("C2 - Depth -> Level down"); }
                     leapfrogOpen();
                 }
             }
         }
+        //totalCacheHits = totalCacheHits + f ?? moet nog
+        System.out.println(totalCacheHits);
         System.out.println(result.size());
         System.out.println(result);
     }
-
+    
     /**
      * Function which initializes the algorithm.
      * When? At the start after each time a key was found or we went a level higher.
      * Calls? When all iterators are still 'alive' we call leapfrogsearch.
      */
+    @Override
     public void leapfrogInit() {
+        int m;
         // Checking if any iterator is empty return (empty) result array
         for(RelationIterator<Integer> relIt : iteratorPerDepth.get(depth)) {
             if(relIt.atEnd()) {
@@ -151,7 +187,31 @@ public class LFTJ {
                 return;
             }
         }
-
+        //initialize bag counter
+        if(v != 0 && depth == owned.get(0)) {
+            counter[v] = 0;
+            
+            //System.out.println("At depth: "+depth+ " currentTuple: "+currentTuple + " checking for assignment " + adhesion.get(0) + " = " +(currentTuple.get(adhesion.get(0))) );
+            //System.out.println("Current bag: "+v+ " adhesion: " + adhesion +" assignment: "+(currentTuple.get(adhesion.get(0))));
+            
+            //check for cache hit
+            if(caches.get(v).containsAssignment(adhesion.get(0), currentTuple.get(adhesion.get(0)))) {
+                System.out.println("cache hit");
+                counter[v] = caches.get(v).lastChecked.counter;
+                m = 0;
+                for(int i = 0; i < td.nrOfVariables; i++) {
+                    if (td.owner.get(i) >= v) {
+                        m = i;
+                    }
+                }
+                cacheHitJumpCounter = m - depth;
+                depth = m;
+                System.out.println("new depth "+depth);
+                leapfrogOpen();
+                return;
+            }
+                
+        }
         // If all iterators are still 'alive' we make sure everything is sorted and start searching for the first
         // possible match.
         if(!atEnd) {
@@ -161,19 +221,30 @@ public class LFTJ {
             leapfrogSearch();
         }
     }
+    
+    public void updateBag() {
+        v = td.owner.get(depth);
+        owned = td.owned.get(v);
+        adhesion = td.adhesion.get(v); 
+        //System.out.println("At depth: " + depth + ", v = "+v+", owned = "+ owned+", adhesion ="+adhesion);
+    }
 
     /**
      * Function which searches for a match in the leapfrogtreejoin. Created as in the paper.
      */
+    @Override
     public void leapfrogSearch() {
         // maxKeyIndex is the index of the maximal element we found and maxKey is the actual value.
         // (Correction needed since -1 % 3 returns -1 and not 2 as we want)
-        int maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
+        //int maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
+        int maxKeyIndex = numIters-1;
         maxKeyIndex = numIters == 1 ? 0 : maxKeyIndex; // Special case where maxKeyIndex = 1 while numIters = 1
         int maxKey = iteratorPerDepth.get(depth).get(maxKeyIndex).key();
+        System.out.println("maxKey "+maxKey + " maxKeyIndex " + maxKeyIndex);
 
         while (true) {
-            int minKey = iteratorPerDepth.get(depth).get(p).key();
+            int minKey = iteratorPerDepth.get(depth).get(0).key();
+            System.out.println("minKey: "+minKey);
 
             if(debug>=2){ System.out.println("--- Searching --- Depth: " + depth + ", MaxKeyIndex: " + maxKeyIndex + ", NumIters: "
                     + numIters + ", maxKey: " + maxKey + ", minKey: " + minKey);}
@@ -190,50 +261,19 @@ public class LFTJ {
 
                 if(debug>=2) {System.out.println("Seek with: "+iteratorPerDepth.get(depth).get(p).debugString());}
 
+                System.out.println("depth2 "+ depth + " p "+p);
                 iteratorPerDepth.get(depth).get(p).seek(maxKey);
                 if(iteratorPerDepth.get(depth).get(p).atEnd()){ // The maxKey is not found
                     if(debug>=2) {System.out.println("key = -1");}
+                    System.out.println("key = -1");
                     atEnd = true;
                     return;
                 } else { // The maxKey is found and thus we check if the next iterator can also find it
+                    System.out.println("huh");
                     maxKey = iteratorPerDepth.get(depth).get(p).key();
                     p = (p + 1) % numIters;
                 }
             }
-        }
-    }
-
-    /**
-     * Function which sets the current iterator at the next value.
-     * When? - This function is used when we just found a matching tuple which all iterators had.
-     * Calls? - Calls leapfrogUp() until at the top.
-     * Calls? - Sets the current iterator to the next.
-     * Calls? - If the current iterator is not at the end, we set the next iterator and execute leapfrogSearch().
-     */
-    public void leapfrogNext(){
-        atEnd = false;
-        iteratorPerDepth.get(depth).get(p).next();
-        if(iteratorPerDepth.get(depth).get(p).atEnd()){
-            atEnd = true;
-        } else {
-            p = (p + 1) % numIters;
-            leapfrogSearch();
-        }
-    }
-
-    /**
-     * Function which seeks for a specific key in the current iterator.
-     * @param seekKey - The specific value we are searching for.
-     * When? - This function is stated in the paper, however, never used...
-     * Calls? - Calls leapfrogSearch for the next iterator if we found the key.
-     */
-    public void leapfrogSeek(int seekKey){
-        iteratorPerDepth.get(depth).get(p).seek(seekKey);
-        if(iteratorPerDepth.get(depth).get(p).atEnd()) {
-            atEnd = true;
-        } else {
-            p = (p + 1) % numIters;
-            leapfrogSearch();
         }
     }
 
@@ -244,16 +284,23 @@ public class LFTJ {
      * Calls? - Calls updateIterPandNumIters which makes sure our p does not go out of bound and numIters is updated.
      * Modifies - currenTuple. Adds the current key to currentTuple and then proceeds with the opening.
      */
+    @Override
     public void leapfrogOpen(){
         if(depth > -1){ // Used to be able to report the currentTuple easily.
             currentTuple.add(iteratorPerDepth.get(depth).get(0).key());
         }
         depth = depth + 1;
-        updateIterPandNumIters();
-        for(RelationIterator relIt : iteratorPerDepth.get(depth) ) {
-            relIt.open();
+        if(depth <= maxDepth) {
+            System.out.println("depth <= maxDepth");
+            updateBag();
+            updateIterPandNumIters();
+            for(RelationIterator relIt : iteratorPerDepth.get(depth) ) {
+                relIt.open();
+            }
+            leapfrogInit();
         }
-        leapfrogInit();
+        
+        
     }
 
     /**
@@ -263,51 +310,32 @@ public class LFTJ {
      * Calls? - Calls updateIterPandNumIters which makes sure our p does not go out of bound and numIters is updated.
      * Modifies - currentTuple. Removes the last added item which was the one from the depth just before we call up.
      */
+    @Override
     public void leapfrogUp(){
         if(depth > 0){
             currentTuple.remove(currentTuple.size()-1);
         }
-        for(RelationIterator relIt : iteratorPerDepth.get(depth) ) {
-            relIt.up();
-        }
-        depth = depth - 1;
-        updateIterPandNumIters();
-    }
-
-    /**
-     * Makes sure our p does not go out of bound and numIters is updated.
-     * Modifies - numIters to match with this depth.
-     * Modifies - p, if p is out of bound for the current depth, we set it to 0.
-     */
-    public void updateIterPandNumIters(){
-        numIters = iteratorPerDepth.get(depth).size();
-        if(numIters<=p){
-            p = 0;
-        }
-    }
-
-    /**
-     * Function to print debug information.
-     */
-    public void printDebugInfo(String message){
-        if (message.length()>=1){
-            System.out.println("Message: "+message);
-        }
-        if(debug>=3) {
-            for (int i = 0; i < iteratorPerDepth.get(depth).size(); i++) {
-                System.out.println("Info of iterator " + Integer.toString(i) + ": " +
-                        iteratorPerDepth.get(depth).get(i).debugString());
+        if(depth <= maxDepth){
+            for(RelationIterator relIt : iteratorPerDepth.get(depth) ) {
+                relIt.up();
             }
         }
+        depth = depth - 1;
+        if(depth >=0 && depth <= maxDepth) {
+            updateBag();
+            updateIterPandNumIters();
+        }
+        
     }
 
-   
+
+    
     /**
      * @param args the command line arguments.
      */
     public static void main(String[] args) throws IOException {
-        LFTJ lftj = new LFTJ(); // Create a LFTJ, load the datasets and ready to rumble
-        lftj.multiJoin(); // We start the joins
+        LFTJCacheCount lftjcc = new LFTJCacheCount(); // Create a LFTJ, load the datasets and ready to rumble
+        lftjcc.multiJoin(); // We start the joins
     }
     
 }

@@ -101,10 +101,12 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public Integer next() {
+                System.out.println("1- curnode "+currentNode+ "parent "+ currentNode.getParent());
                 if(currentNode.getBornIndexOfThisChild()+1 >= currentNode.getParent().getAmountOfChildren()){
                     atEnd = true;
                 } else {
                     currentNode = currentNode.next();
+                    System.out.println("2- curnode "+currentNode+ " parent "+ currentNode.getParent());
                 }
                 return currentNode.getKey();
             }
@@ -116,6 +118,7 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public void seek(int seekKey) {
+                System.out.println(" in seek " + currentNode + " "+currentNode.getParent() + " " +currentNode.getBornIndexOfThisChild());
                 binarySearch(currentNode.getParent(), currentNode.getBornIndexOfThisChild(), seekKey);
             }
 
@@ -219,6 +222,11 @@ public class TreeRelation implements Iterable<Integer>{
                             ", amount of children: "+ currentNode.getAmountOfChildren() +
                             ", This is the root note...";
                 }
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
 

@@ -1,6 +1,6 @@
 package src;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+//import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import java.util.ArrayList;
 
 /**
@@ -34,9 +34,9 @@ class TreeNode {
      * @return TreeNode of this child.
      */
     TreeNode addChild(int childKey, int childDepth, int childNumber){
-        if(childDepth<0){
-            throw new ValueException("ChildDepth has to be at least 0");
-        }
+//        if(childDepth<0){
+//            throw new ValueException("ChildDepth has to be at least 0");
+//        }
         TreeNode child = new TreeNode(childKey, childDepth, childNumber);
         child.setParent(this);
         children.add(child);
