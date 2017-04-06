@@ -64,9 +64,9 @@ public class LFTJCacheCount extends LFTJ{
         for(i = 1; i <= amountOfRelations; i++){
             DataImporter di;
             if(CycleOrRounds == LFTJ.CycleOrRoundsEnum.CYCLE && i == amountOfRelations) {
-                di = new DataImporter("./data/test.txt");
+                di = new DataImporter(fileName, true);
             } else {
-                di = new DataImporter(fileName);
+                di = new DataImporter(fileName, false);
             }
             TreeRelation rel = di.getRelArray();
             rel.setUid(i);
