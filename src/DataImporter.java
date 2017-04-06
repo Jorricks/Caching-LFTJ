@@ -58,7 +58,7 @@ public class DataImporter {
             }
         }
 
-        return new TreeRelation(relArray, true);
+        return new TreeRelation(relArray, false);
     }
 
     /**
