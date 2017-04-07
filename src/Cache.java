@@ -5,21 +5,21 @@
  */
 package src;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- *
- * @author s131061
- */
 public class Cache {
-    Set<VariableAssignment> vas;
-    VariableAssignment lastChecked;
+    Set<VariableAssignment> vas; //
+    VariableAssignment lastChecked; // The last checked variable assignment
+    ArrayList<ArrayList<Integer>> Owns; // All the tuple key values that it owns.
+
     
     /**
      * Constructor of this class
      */
-    public Cache(){
+    Cache(){
         vas = new HashSet<>();
     }
     
@@ -28,7 +28,7 @@ public class Cache {
      * @param ass Contains the variable assignment to be added to the set
      * Modifies? set vas to contain ass.
      */
-    public void addAssignment(VariableAssignment ass){
+    void addAssignment(VariableAssignment ass){
         vas.add(ass);
     }
     

@@ -11,23 +11,23 @@ import java.util.Collections;
 
 public class LFTJ {
 
-    public int debug = 0; // Represents the amount of debugging. 0 = None, 3 = Extreme
+    int debug = 3; // Represents the amount of debugging. 0 = None, 3 = Extreme
 
-    public ArrayList<ArrayList<Integer>> result; // Result set: array with tuples
-    public ArrayList<ArrayList<RelationIterator<Integer>>> iteratorPerDepth; // Contains the iterator for each dept
-    public ArrayList<Integer> currentTuple = new ArrayList<>(); // Contains the key values of all parents
-    public int p = 0; // Current iterator pointer
-    public int numIters; // Number of iterators at this depth
-    public int depth = -1; // Current depth
-    public int maxDepth = 0; // How deep is our relation? R(x,y), T(y,z) yields 2.
-    public int key = 0; // Contains the key value when we find a matching search in leapfrogSearch.
-    public boolean atEnd; // Mirrors whether there is an iterator at his end.
+    ArrayList<ArrayList<Integer>> result; // Result set: array with tuples
+    ArrayList<ArrayList<RelationIterator<Integer>>> iteratorPerDepth; // Contains the iterator for each dept
+    ArrayList<Integer> currentTuple = new ArrayList<>(); // Contains the key values of all parents
+    int p = 0; // Current iterator pointer
+    int numIters; // Number of iterators at this depth
+    int depth = -1; // Current depth
+    int maxDepth = 0; // How deep is our relation? R(x,y), T(y,z) yields 2.
+    int key = 0; // Contains the key value when we find a matching search in leapfrogSearch.
+    boolean atEnd; // Mirrors whether there is an iterator at his end.
     public enum CycleOrRoundsEnum { CYCLE, PATH } // Whether we want the relations to be a cycle or a path.
 
     /**
      * Constructor of this class
      */
-    public LFTJ() throws IOException {
+    LFTJ() throws IOException {
 
         initDataSets("./data/self-created-test.txt", CycleOrRoundsEnum.PATH, 4);
         result = new ArrayList<>(); //create an array that will hold the results
@@ -37,7 +37,7 @@ public class LFTJ {
      * Function which initializes the data sets and converts the data sets into iterators.
      * @param fileName The path from this sources root to the data set.
      * @param CycleOrRounds Specifies whether we are looking for # rounds or a complete cycle.
-     * @param amountOfRelations Specifies the # of paths or cycles specified in the query, i.e. 3-path, 3-cycle etc.
+     * @param amountOfPathOrCycle Specifies the # of paths or cycles specified in the query, i.e. 3-path, 3-cycle etc.
      * When? At the start of the program.
      * Calls? When all iterators are still 'alive' we call leapfrogSearch.
      */
@@ -217,7 +217,8 @@ public class LFTJ {
             atEnd = true;
         } else {
             p = (p + 1) % numIters;
-            leapfrogSearch();
+//            leapfrogSearch();
+            leapfrogInit();
         }
     }
 
@@ -279,7 +280,7 @@ public class LFTJ {
      * Modifies - numIters to match with this depth.
      * Modifies - p, if p is out of bound for the current depth, we set it to 0.
      */
-    public void updateIterPandNumIters(){
+    void updateIterPandNumIters(){
         numIters = iteratorPerDepth.get(depth).size();
         if(numIters<=p){
             p = 0;
@@ -289,14 +290,18 @@ public class LFTJ {
     /**
      * Function to print debug information.
      */
-    public void printDebugInfo(String message){
+    void printDebugInfo(String message){
         if (message.length()>=1){
             System.out.println("Message: "+message);
         }
         if(debug>=3) {
-            for (int i = 0; i < iteratorPerDepth.get(depth).size(); i++) {
-                System.out.println("Info of iterator " + Integer.toString(i) + ": " +
-                        iteratorPerDepth.get(depth).get(i).debugString());
+            if(depth>maxDepth){
+                System.out.println("Our depth is "+ depth + " while our maxDepth is "+maxDepth+" hence no debuginfo");
+            } else{
+                for (int i = 0; i < iteratorPerDepth.get(depth).size(); i++) {
+                    System.out.println("Info of iterator " + Integer.toString(i) + ": " +
+                            iteratorPerDepth.get(depth).get(i).debugString());
+                }
             }
         }
     }

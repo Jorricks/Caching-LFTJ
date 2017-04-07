@@ -9,10 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import src.LFTJ.CycleOrRoundsEnum;
 
-/**
- *
- * @author s131061
- */
 public class TreeDecomposition {
     int nrOfVariables;
     int nrOfBags;

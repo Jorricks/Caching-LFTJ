@@ -8,32 +8,30 @@ package src;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  *
  * @author s131061
  */
 public class LFTJCacheCount extends LFTJ{
-    ArrayList<Cache> caches;
-    int counter[];
-    int totalCacheHits;
-    int v = 0;
-    ArrayList<Integer> owned = new ArrayList<>();
-    ArrayList<Integer> adhesion = new ArrayList<>();
-    TreeDecomposition td;
-    int cacheHitJumpCounter = 0;
+    private ArrayList<Cache> caches;
+    private int counter[];
+    private int totalCacheHits;
+    private int v = 0;
+    private ArrayList<Integer> owned = new ArrayList<>();
+    private ArrayList<Integer> adhesion = new ArrayList<>();
+    private TreeDecomposition td;
+    private int cacheHitJumpCounter = 0;
     
     
-    public LFTJCacheCount() throws IOException {
-
+    private LFTJCacheCount() throws IOException {
+        // Executes the init method of LFTJ..
     }
     /**
      * Function which initializes the data sets and converts the data sets into iterators.
      * @param fileName The path from this sources root to the data set.
      * @param CycleOrRounds Specifies whether we are looking for # rounds or a complete cycle.
-     * @param amountOfRelations Specifies the # of paths or cycles specified in the query, i.e. 3-path, 3-cycle etc.
+     * @param amountOfPathOrCycle Specifies the # of paths or cycles specified in the query, i.e. 3-path, 3-cycle etc.
      * When? At the start of the program.
      * Calls? When all iterators are still 'alive' we call leapfrogSearch.
      */
@@ -121,7 +119,12 @@ public class LFTJCacheCount extends LFTJ{
                 // We continue the search. At this depth we were at the end, so we go one up and go to the next value.
                 //Before we go up, check if depth is first in bag, if so store cache (lines 22,23 from algorithm in paper)
                 if(v != 0 && depth == td.owned.get(v).get(0)) {
+                    System.out.println("At depth: "+depth+ " currentTuple: "+currentTuple + " checking for assignment " + adhesion.get(0) + " = " +(currentTuple.get(adhesion.get(0))) );
+                    System.out.println("Current bag: "+v+ " adhesion: " + adhesion +" assignment: "+(currentTuple.get(adhesion.get(0))));
+
                     VariableAssignment va = new VariableAssignment(adhesion.get(0), currentTuple.get(adhesion.get(0)));
+                    System.out.println(currentTuple);
+//                    VariableAssignment va = new VariableAssignment(adhesion.get(0), currentTuple.get(depth-2));
                     va.counter = counter[v];
                     caches.get(v).addAssignment(va);
                 }
@@ -148,8 +151,10 @@ public class LFTJCacheCount extends LFTJ{
                     
                     //incrementer counter of bag
                     counter[v] = counter[v] + 1;
-                    
+
+                    if(debug>=2) {System.out.println(""); }
                     if(debug>=1) {System.out.println(result); }
+                    if(debug>=2) {System.out.println(""); }
                     leapfrogNext();
                 } else if (depth > maxDepth) {
                     for(int i = 0; i <= cacheHitJumpCounter; i++){
@@ -191,10 +196,11 @@ public class LFTJCacheCount extends LFTJ{
         if(v != 0 && depth == owned.get(0)) {
             counter[v] = 0;
             
-            //System.out.println("At depth: "+depth+ " currentTuple: "+currentTuple + " checking for assignment " + adhesion.get(0) + " = " +(currentTuple.get(adhesion.get(0))) );
-            //System.out.println("Current bag: "+v+ " adhesion: " + adhesion +" assignment: "+(currentTuple.get(adhesion.get(0))));
+            System.out.println("At depth: "+depth+ " currentTuple: "+currentTuple + " checking for assignment " + adhesion.get(0) + " = " +(currentTuple.get(adhesion.get(0))) );
+            System.out.println("Current bag: "+v+ " adhesion: " + adhesion +" assignment: "+(currentTuple.get(adhesion.get(0))));
             
             //check for cache hit
+            System.out.println(currentTuple);
             if(caches.get(v).containsAssignment(adhesion.get(0), currentTuple.get(adhesion.get(0)))) {
                 System.out.println("cache hit");
                 counter[v] = caches.get(v).lastChecked.counter;
@@ -222,7 +228,7 @@ public class LFTJCacheCount extends LFTJ{
         }
     }
     
-    public void updateBag() {
+    private void updateBag() {
         v = td.owner.get(depth);
         owned = td.owned.get(v);
         adhesion = td.adhesion.get(v); 
@@ -240,10 +246,10 @@ public class LFTJCacheCount extends LFTJ{
         int maxKeyIndex = numIters-1;
         maxKeyIndex = numIters == 1 ? 0 : maxKeyIndex; // Special case where maxKeyIndex = 1 while numIters = 1
         int maxKey = iteratorPerDepth.get(depth).get(maxKeyIndex).key();
-        System.out.println("maxKey "+maxKey + " maxKeyIndex " + maxKeyIndex);
+        System.out.println("maxKey: "+maxKey + ", maxKeyIndex: " + maxKeyIndex + ", numIters: " + numIters);
 
         while (true) {
-            int minKey = iteratorPerDepth.get(depth).get(0).key();
+            int minKey = iteratorPerDepth.get(depth).get(p).key();
             System.out.println("minKey: "+minKey);
 
             if(debug>=2){ System.out.println("--- Searching --- Depth: " + depth + ", MaxKeyIndex: " + maxKeyIndex + ", NumIters: "
@@ -252,6 +258,7 @@ public class LFTJCacheCount extends LFTJ{
 
             if (maxKey == minKey) {
                 if(debug>=2) {System.out.println("Found key = "+minKey);}
+                if(debug>=2) {System.out.println("We currently have as result = "+currentTuple);}
 
                 key = minKey;
                 return;
@@ -261,15 +268,14 @@ public class LFTJCacheCount extends LFTJ{
 
                 if(debug>=2) {System.out.println("Seek with: "+iteratorPerDepth.get(depth).get(p).debugString());}
 
-                System.out.println("depth2 "+ depth + " p "+p);
+                System.out.println("Depth: "+ depth + " P: "+p);
                 iteratorPerDepth.get(depth).get(p).seek(maxKey);
                 if(iteratorPerDepth.get(depth).get(p).atEnd()){ // The maxKey is not found
                     if(debug>=2) {System.out.println("key = -1");}
                     System.out.println("key = -1");
                     atEnd = true;
                     return;
-                } else { // The maxKey is found and thus we check if the next iterator can also find it
-                    System.out.println("huh");
+                } else { // A new maxKey is found and thus we check if the next iterator can also find it
                     maxKey = iteratorPerDepth.get(depth).get(p).key();
                     p = (p + 1) % numIters;
                 }
@@ -312,7 +318,7 @@ public class LFTJCacheCount extends LFTJ{
      */
     @Override
     public void leapfrogUp(){
-        if(depth > 0){
+        if(depth <= currentTuple.size() && depth > 0){
             currentTuple.remove(currentTuple.size()-1);
         }
         if(depth <= maxDepth){
@@ -334,8 +340,8 @@ public class LFTJCacheCount extends LFTJ{
      * @param args the command line arguments.
      */
     public static void main(String[] args) throws IOException {
-        LFTJCacheCount lftjcc = new LFTJCacheCount(); // Create a LFTJ, load the datasets and ready to rumble
-        lftjcc.multiJoin(); // We start the joins
+        LFTJCacheCount lftjcc = new LFTJCacheCount(); // Create a LFTJ with cache, load the datasets and ready to rumble
+        lftjcc.multiJoin(); // We start the joins and count the cache
     }
     
 }

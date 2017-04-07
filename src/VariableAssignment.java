@@ -5,10 +5,6 @@
  */
 package src;
 
-/**
- *
- * @author s131061
- */
 public class VariableAssignment {
     int variable;
     int assignment;

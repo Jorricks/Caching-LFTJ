@@ -101,13 +101,13 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public Integer next() {
-                System.out.println("1- curnode "+currentNode+ "parent "+ currentNode.getParent());
+                System.out.println("Next - 1 = "+getCurrentNodeInfo(currentNode));
                 if(currentNode.getBornIndexOfThisChild()+1 >= currentNode.getParent().getAmountOfChildren()){
                     atEnd = true;
                 } else {
                     currentNode = currentNode.next();
-                    System.out.println("2- curnode "+currentNode+ " parent "+ currentNode.getParent());
                 }
+                System.out.println("Next - 2 = "+getCurrentNodeInfo(currentNode));
                 return currentNode.getKey();
             }
 
@@ -118,7 +118,9 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public void seek(int seekKey) {
-                System.out.println(" in seek " + currentNode + " "+currentNode.getParent() + " " +currentNode.getBornIndexOfThisChild());
+                System.out.println("Seek for " + seekKey + " starting with " +
+                    "CurrentNode = ["+ currentNode.getParent().getKey() + "]["+currentNode.getKey() + "] " +
+                    " Depth = " + currentNode.getDepth() + " Parent depth = " + currentNode.getParent().getDepth());
                 binarySearch(currentNode.getParent(), currentNode.getBornIndexOfThisChild(), seekKey);
             }
 
@@ -202,6 +204,15 @@ public class TreeRelation implements Iterable<Integer>{
                         currentNode = parentNode.getChild(min);
                     }
                 }
+            }
+
+            /**
+             * @param currentNode current node
+             * @return information of the current Node
+             */
+            public String getCurrentNodeInfo(TreeNode currentNode){
+                return "CurrentNode = ["+ currentNode.getParent().getKey() + "]["+currentNode.getKey() + "] " +
+                " Depth = " + currentNode.getDepth() + " Parent depth = " + currentNode.getParent().getDepth();
             }
 
             /**
