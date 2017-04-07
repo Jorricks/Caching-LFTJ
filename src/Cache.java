@@ -5,22 +5,26 @@
  */
 package src;
 
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Cache {
-    Set<VariableAssignment> vas; //
+    private ArrayList<VariableAssignment> vas; //
     VariableAssignment lastChecked; // The last checked variable assignment
-    ArrayList<ArrayList<Integer>> Owns; // All the tuple key values that it owns.
-
+    // For a given vas, which is at the same index as it would be at vas.
+    // It contains the lists of all lists.
+    private ArrayList<ArrayList<ArrayList<Integer>>> ownedKeys;
     
     /**
      * Constructor of this class
      */
     Cache(){
-        vas = new HashSet<>();
+        vas = new ArrayList<>();
+        ownedKeys = new ArrayList<>(new ArrayList<>());
     }
     
     /**
@@ -30,6 +34,8 @@ public class Cache {
      */
     void addAssignment(VariableAssignment ass){
         vas.add(ass);
+        ArrayList<ArrayList<Integer>> emptyArrayList = new ArrayList<>(new ArrayList<>());
+        ownedKeys.add(emptyArrayList);
     }
     
     /**
@@ -38,7 +44,50 @@ public class Cache {
      * Modifies? set vas to vas without ass.
      */
     public void removeAssignment(VariableAssignment ass){
+        ownedKeys.remove(getAssKey(ass));
         vas.remove(ass);
+    }
+
+
+   /* public void addOwnedKey(VariableAssignment ass, ArrayList<Integer> keys, int newKey){
+        boolean found = false;
+        for (ArrayList<Integer> keyList : ownedKeys.get(getAssKey(ass))){
+            if (keyList.equals(prefixOwnedKeys)){
+                keyList.add(newKey);
+                found = true;
+            }
+        }
+        if(!found){*/
+    public void addOwnedKeyResults(VariableAssignment ass, ArrayList<Integer> keys){
+        ownedKeys.get(getAssKey(ass)).add(keys);
+    }
+
+    public ArrayList<ArrayList<Integer>> returnOwnedKeys(int key){
+        return ownedKeys.get(getAssKey(key));
+    }
+
+    private int getAssKey(VariableAssignment ass){
+        int result = 0;
+        for(VariableAssignment vasItem: vas){
+            if(ass.equals(vasItem)){
+                return result;
+            }
+            result++;
+        }
+        System.out.println("Could not find VariableAssignment in current bag.");
+        return -1;
+    }
+
+    private int getAssKey(int key){
+        int result = 0;
+        for(int i = 0; i < vas.size(); i++){
+            if(vas.get(i).assignment == key){
+                return result;
+            }
+            result++;
+        }
+        System.out.println("Could not find VariableAssignment in current bag.");
+        return -1;
     }
     
     /**

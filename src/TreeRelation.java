@@ -83,6 +83,7 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public int key() {
+                System.out.println("1 uid: "+uid+" node: "+currentNode);
                 return currentNode.getKey();
             }
 
@@ -91,6 +92,7 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public boolean hasNext() {
+                System.out.println("2 uid: "+uid+" node: "+currentNode);
                 return currentNode.hasNext();
             }
 
@@ -101,6 +103,7 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public Integer next() {
+                System.out.println("3 uid: "+uid+" node: "+currentNode);
                 System.out.println("Next - 1 = "+getCurrentNodeInfo(currentNode));
                 if(currentNode.getBornIndexOfThisChild()+1 >= currentNode.getParent().getAmountOfChildren()){
                     atEnd = true;
@@ -118,6 +121,7 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public void seek(int seekKey) {
+                System.out.println("4 uid: "+uid+" node: "+currentNode);
                 System.out.println("Seek for " + seekKey + " starting with " +
                     "CurrentNode = ["+ currentNode.getParent().getKey() + "]["+currentNode.getKey() + "] " +
                     " Depth = " + currentNode.getDepth() + " Parent depth = " + currentNode.getParent().getDepth());
@@ -130,6 +134,7 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public boolean atEnd() {
+                System.out.println("5 uid: "+uid+" node: "+currentNode);
                 return atEnd;
             }
 
@@ -140,6 +145,7 @@ public class TreeRelation implements Iterable<Integer>{
              */
             @Override
             public int compareTo(RelationIterator<Integer> o) {
+                System.out.println("6 uid: "+uid+" node: "+currentNode);
                 return Integer.compare(this.key(), o.key());
             }
 
@@ -149,6 +155,7 @@ public class TreeRelation implements Iterable<Integer>{
             @Override
             public void open(){
                 currentNode = currentNode.down();
+                System.out.println("7 uid: "+uid+" node: "+currentNode);
             }
 
             /**
@@ -157,7 +164,15 @@ public class TreeRelation implements Iterable<Integer>{
             @Override
             public void up(){
                 atEnd = false;
-                currentNode = currentNode.up();
+                System.out.println("8a uid: "+uid+" key: "+ key() + " node: "+currentNode);
+                TreeNode nextNode = currentNode.up();
+                if(nextNode != null){
+                    currentNode = nextNode;
+                } else {
+                    System.out.println("We called up at a treeNode.. that shouldn't happen....");
+                }
+//                currentNode = currentNode.up();
+                System.out.println("8b uid: "+uid+" node: "+currentNode);
             }
 
             /**
@@ -171,6 +186,7 @@ public class TreeRelation implements Iterable<Integer>{
              * Complexity? log(n) as this is the standard binary search.
              */
             private void binarySearch(TreeNode parentNode, int minIndex, int searchValue){
+                System.out.println("9 uid: "+uid+" node: "+currentNode);
                 int min = minIndex;
                 int max = parentNode.getAmountOfChildren();
                 while (max > min) {
@@ -204,6 +220,7 @@ public class TreeRelation implements Iterable<Integer>{
                         currentNode = parentNode.getChild(min);
                     }
                 }
+                System.out.println("10 uid: "+uid+" node: "+currentNode);
             }
 
             /**
@@ -223,11 +240,11 @@ public class TreeRelation implements Iterable<Integer>{
             @Override
             public String debugString(){
                 if(currentNode.getParent() != null){
-                return "uid: " + uid + ", key: " + key() + ", depth: " + currentNode.getDepth() +
-                        ", parentKey: " + currentNode.getParent().getKey() +
-                        ", amount of children: "+ currentNode.getAmountOfChildren() +
-                        ", get amount of brothers: "+ currentNode.getParent().getAmountOfChildren() +
-                        ", compared to brothers at index: "+currentNode.getBornIndexOfThisChild();
+                    return "uid: " + uid + ", key: " + key() + ", depth: " + currentNode.getDepth() +
+                            ", parentKey: " + currentNode.getParent().getKey() +
+                            ", amount of children: "+ currentNode.getAmountOfChildren() +
+                            ", get amount of brothers: "+ currentNode.getParent().getAmountOfChildren() +
+                            ", compared to brothers at index: "+currentNode.getBornIndexOfThisChild();
                 } else {
                     return "uid: " + uid + ", key: " + key() + ", depth: " + currentNode.getDepth() +
                             ", amount of children: "+ currentNode.getAmountOfChildren() +
