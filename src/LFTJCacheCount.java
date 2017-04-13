@@ -106,6 +106,7 @@ public class LFTJCacheCount extends LFTJ{
     public void multiJoin(){
         // Start out by initializing/starting the algorithm with leapfrogOpen. This is the main loop.
         leapfrogOpen();
+        leapfrogInit();
         
         while (true){ // This is our search function
             if(debug>=2) { printDebugInfo("A - Continue with the true loop"); }
@@ -194,6 +195,7 @@ public class LFTJCacheCount extends LFTJ{
                 } else {// We can still go level deeper.
                     if(debug>=2) {System.out.println("C2 - Depth -> Level down"); }
                     leapfrogOpen();
+                    leapfrogInit();
                 }
             }
         }
@@ -253,13 +255,30 @@ public class LFTJCacheCount extends LFTJ{
                 //@TODO It seems like it looks like it goes to much in depth..
                 // causing the last iterator (uid =3) to become depth = -1... Very annoying
                 // can we avoid this??
+
+                // One change is instead of assigning depth to m(where max-depth = 3 and m=4),
+                // i actually do this by calling downs from current depth up to m-1.
                 cacheHitJumpCounter = m - depth;
-                depth = m;
+//                System.out.println("Depth is "+depth+" m is here "+m);
+//                while(depth<m){
+//                    leapfrogOpen();
+//                    System.out.println("We open up another level...");
+//                }
+//                System.out.println("Depth is "+depth+" m is here "+m);
+//                leapfrogNext();
+//                leapfrogInit();
+
+//                depth = m;
+//                leapfrogOpen();
+                leapfrogUp();
+                leapfrogNext();
+//                if(atEnd){
+//                    leapfrogUp();
+//                }
                 System.out.println("new depth "+depth);
-                leapfrogOpen();
                 return;
             }
-                
+
         }
         // If all iterators are still 'alive' we make sure everything is sorted and start searching for the first
         // possible match.
@@ -348,7 +367,8 @@ public class LFTJCacheCount extends LFTJ{
                 relIt.open();
                 printDebugInfo("Extra iterator info for debug ");
             }
-            leapfrogInit();
+            // Removed for testing purposes
+//            leapfrogInit();
         }
         
         
