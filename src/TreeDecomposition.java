@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import src.LFTJ.CycleOrRoundsEnum;
 
 public class TreeDecomposition {
+    private boolean debug;
     int nrOfVariables;
     int nrOfBags;
     ArrayList<ArrayList<Integer>> bags = new ArrayList<>();
@@ -20,7 +21,8 @@ public class TreeDecomposition {
     /**
      * FConstructor of this class
      */
-    public TreeDecomposition(Enum CycleOrRounds, int amountOfPathOrCycle) {
+    public TreeDecomposition(Enum CycleOrRounds, int amountOfPathOrCycle, boolean debug) {
+        this.debug = debug;
         nrOfVariables = amountOfPathOrCycle;
         nrOfBags = nrOfVariables - 1;
         createBags(CycleOrRounds);
@@ -44,8 +46,7 @@ public class TreeDecomposition {
                 bags.add(tempBag);
             }
         }
-        printBags();
-        
+        if(debug){ printBags();}
     }
     
    /**
@@ -55,7 +56,6 @@ public class TreeDecomposition {
      */
     private void createAdhesion(){
         adhesion.add(new ArrayList(){});//adhesion for root is empty
-        System.out.println("bag size "+bags.size());
         //for each bag, except the root, calculate the adhesion
         for(int i = 1; i < bags.size() ; i++){
             ArrayList<Integer> tempAdh = new ArrayList<>();
@@ -71,7 +71,7 @@ public class TreeDecomposition {
             }
             adhesion.add(tempAdh);
         }
-        printAdhesion();
+        if(debug){ printAdhesion();}
     }
     
     /**
@@ -89,7 +89,7 @@ public class TreeDecomposition {
                 }
             }
         }
-        printOwners();
+        if(debug){ printOwners();}
     }
     
     /**
@@ -108,14 +108,13 @@ public class TreeDecomposition {
             }
             owned.add(tempOwned);
         }
-        printOwned();
+        if(debug){ printOwned();}
     }
     
     /**
      * Function that prints all bags.
      */
     private void printBags(){
-        //System.out.println("bag size "+bags.size());
         for(int i = 0; i < bags.size(); i++) {
             System.out.println(" Bag " + i+ " holds variable " + bags.get(i)+ "; ");
         }
@@ -152,7 +151,7 @@ public class TreeDecomposition {
      * @param args the command line arguments.
      */
     public static void main(String[] args) throws IOException {
-        TreeDecomposition td = new TreeDecomposition(CycleOrRoundsEnum.PATH, 4); 
+        TreeDecomposition td = new TreeDecomposition(CycleOrRoundsEnum.PATH, 4, true);
         //td.multiJoin(); // We start the joins
     }
 }

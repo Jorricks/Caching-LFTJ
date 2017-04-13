@@ -6,6 +6,7 @@ import java.util.*;
 public class DataImporter {
     private BufferedReader br;
     private boolean reverseOrder;
+    private boolean debug;
 
     /**
      * Constructor of this class
@@ -13,8 +14,9 @@ public class DataImporter {
      * @param reverseOrder Specifies whether the relation is stored in its original order
      * @throws IOException If fileName is specified incorrectly
      */
-    DataImporter(String fileName, boolean reverseOrder) throws IOException {
+    DataImporter(String fileName, boolean reverseOrder, boolean debug) throws IOException {
         this.reverseOrder = reverseOrder;
+        this.debug = debug;
         try {
             File file = new File(fileName);
             br = new BufferedReader((new FileReader(file)));
@@ -88,7 +90,7 @@ public class DataImporter {
 
     // Main method for testing purposes
     public static void main(String[] args) throws IOException {
-        DataImporter di = new DataImporter("./data/test.txt", true);
+        DataImporter di = new DataImporter("./data/test.txt", true, true);
         TreeRelation relation = di.getRelArray();
     }
 }

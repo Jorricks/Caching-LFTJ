@@ -11,7 +11,7 @@ import java.util.Collections;
 
 public class LFTJ {
 
-    int debug = 3; // Represents the amount of debugging. 0 = None, 3 = Extreme
+    int debug = 0; // Represents the amount of debugging. 0 = None, 3 = Extreme
 
     ArrayList<ArrayList<Integer>> result; // Result set: array with tuples
     ArrayList<ArrayList<RelationIterator<Integer>>> iteratorPerDepth; // Contains the iterator for each dept
@@ -53,9 +53,9 @@ public class LFTJ {
         for(i = 1; i <= amountOfRelations; i++){
             DataImporter di;
             if(CycleOrRounds == CycleOrRoundsEnum.CYCLE && i == amountOfRelations) {
-                di = new DataImporter(fileName, true);
+                di = new DataImporter(fileName, true, debug>1);
             } else {
-                di = new DataImporter(fileName, false);
+                di = new DataImporter(fileName, false, debug>1);
             }
             TreeRelation rel = di.getRelArray();
             rel.setUid(i);
@@ -169,6 +169,7 @@ public class LFTJ {
         // maxKeyIndex is the index of the maximal element we found and maxKey is the actual value.
         // (Correction needed since -1 % 3 returns -1 and not 2 as we want)
         int maxKeyIndex = ((p - 1) % numIters) + ((p - 1) < 0 ? numIters : 0);
+//        int maxKeyIndex = numIters-1;
         maxKeyIndex = numIters == 1 ? 0 : maxKeyIndex; // Special case where maxKeyIndex = 1 while numIters = 1
         int maxKey = iteratorPerDepth.get(depth).get(maxKeyIndex).key();
 
@@ -306,13 +307,29 @@ public class LFTJ {
         }
     }
 
-   
+    /**
+     * Print information about the running time.
+     */
+    static void printRunningTimes(long startTime, long midTime, long endTime){
+        long interTime = (midTime-startTime)/1000000;
+        System.out.println("Time to load the data: "+interTime+" ms");
+        interTime = (endTime-midTime)/1000000;
+        System.out.println("Time to execute the algorithm: "+interTime+" ms");
+        interTime = (endTime-startTime)/1000000;
+        System.out.println("Time to execute both: "+interTime+" ms");
+    }
+
+
     /**
      * @param args the command line arguments.
      */
     public static void main(String[] args) throws IOException {
-        LFTJ lftj = new LFTJ(); // Create a LFTJ, load the datasets and ready to rumble
-        lftj.multiJoin(); // We start the joins
+        long startTime = System.nanoTime();
+        LFTJ lftj = new LFTJ(); // Create a LFTJ with cache, load the datasets and ready to rumble
+        long midTime = System.nanoTime();
+        lftj.multiJoin(); // We start the joins and count the cache
+        long endTime = System.nanoTime();
+        printRunningTimes(startTime, midTime, endTime);
     }
     
 }
