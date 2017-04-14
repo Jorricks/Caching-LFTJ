@@ -130,6 +130,7 @@ public class LFTJ {
                     currentTuple.add(key);
                     tuple.addAll(currentTuple);
                     result.add(tuple);
+                    tuple = null;
                     currentTuple.remove(currentTuple.size()-1);
 
                     key = -1;
@@ -143,9 +144,8 @@ public class LFTJ {
                 }
             }
         }
-        System.out.println("Number of results: "+result.size());
+        endTime = System.nanoTime();
         printResults();
-        //System.out.println(result);
     }
 
     /**

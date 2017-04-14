@@ -26,7 +26,7 @@ public class LFTJCacheCount extends LFTJ{
     private int numberOfComputedResults = 0;
     
     
-    private LFTJCacheCount(String dataSetPath, Enum CycleOrRoundsEnum, int amountOfPathOrCycle) throws IOException {
+    LFTJCacheCount(String dataSetPath, Enum CycleOrRoundsEnum, int amountOfPathOrCycle) throws IOException {
         super(dataSetPath, CycleOrRoundsEnum, amountOfPathOrCycle);
         // Executes the init method of LFTJ..
     }
@@ -211,11 +211,8 @@ public class LFTJCacheCount extends LFTJ{
                 }
             }
         }
-        
-        System.out.println("Total number of cache hits: "+totalCacheHits);
-        System.out.println("Total number of results: "+result.size()+ " of which " + numberOfCacheResults +" are from cache and " + numberOfComputedResults+" are computed");
-        //System.out.println(result);
-        
+        endTime = System.nanoTime();
+        printResults();
     }
     
     /**
@@ -416,14 +413,17 @@ public class LFTJCacheCount extends LFTJ{
      * Function to print the results in such a way with tabs that it can be reused.
      */
     private void printResults(){
-        System.out.println("No caching" + "\t" +
+        System.out.println("Caching" + "\t" +
                 resultCycleOrPath + "\t" +
                 resultAmountOfCycleorPath + "\t" +
                 (midTime-startTime)/1000000 + "\t" +
                 (endTime-midTime)/1000000 + "\t" +
                 (endTime-startTime)/1000000 + "\t" +
                 result.size() + "\t" +
-                );
+                numberOfCacheResults + "\t" +
+                numberOfComputedResults + "\t" +
+                totalCacheHits + "\t"
+        );
     }
 
     
