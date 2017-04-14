@@ -17,18 +17,22 @@ public class RunningTests {
         };
         LFTJ lftj;
         LFTJCacheCount lftjcc;
+        LFTJ.CycleOrRoundsEnum cycleOrRounds;
 
         System.out.println("----------- Starting -----------");
         for(int i=0; i<dataFiles.length; i++){
             System.out.println("----------- Data file : "+dataFiles[i]+" -----------");
             for(int j = 0 ; j < 2; j++){
                 if(j==0){
-                    LFTJ.CycleOrRoundsEnum cycleOrRounds = LFTJ.CycleOrRoundsEnum.PATH;
+                    cycleOrRounds = LFTJ.CycleOrRoundsEnum.PATH;
                 } else {
-                    LFTJ.CycleOrRoundsEnum cycleOrRounds = LFTJ.CycleOrRoundsEnum.CYCLE;
+                    cycleOrRounds = LFTJ.CycleOrRoundsEnum.CYCLE;
                 }
                 for( int k=4; k < 7; k++){
                     lftj = new LFTJ(dataFiles[i], cycleOrRounds, k);
+                    lftj.multiJoin();
+                    lftj = null;
+
                 }
             }
         }

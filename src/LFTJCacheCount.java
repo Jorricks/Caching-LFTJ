@@ -24,7 +24,8 @@ public class LFTJCacheCount extends LFTJ{
     private int cacheHitJumpCounter = 0;
     
     
-    private LFTJCacheCount() throws IOException {
+    private LFTJCacheCount(String dataSetPath, Enum CycleOrRoundsEnum, int amountOfPathOrCycle) throws IOException {
+        super(dataSetPath, CycleOrRoundsEnum, amountOfPathOrCycle);
         // Executes the init method of LFTJ..
     }
     /**
@@ -400,11 +401,25 @@ public class LFTJCacheCount extends LFTJ{
     /**
      * bladiebla
      */
-
     private void updateBag() {
         v = td.owner.get(depth);
         owned = td.owned.get(v);
         adhesion = td.adhesion.get(v);
+    }
+
+
+    /**
+     * Function to print the results in such a way with tabs that it can be reused.
+     */
+    private void printResults(){
+        System.out.println("No caching" + "\t" +
+                resultCycleOrPath + "\t" +
+                resultAmountOfCycleorPath + "\t" +
+                (midTime-startTime)/1000000 + "\t" +
+                (endTime-midTime)/1000000 + "\t" +
+                (endTime-startTime)/1000000 + "\t" +
+                result.size() + "\t" +
+                );
     }
 
     
@@ -413,7 +428,7 @@ public class LFTJCacheCount extends LFTJ{
      */
     public static void main(String[] args) throws IOException {
         long startTime = System.nanoTime();
-        LFTJCacheCount lftjcc = new LFTJCacheCount(); // Create a LFTJ with cache, load the datasets and ready to rumble
+        LFTJCacheCount lftjcc = new LFTJCacheCount("./data/CA-GrQc.txt", CycleOrRoundsEnum.PATH, 4); // Create a LFTJ with cache, load the datasets and ready to rumble
         long midTime = System.nanoTime();
         lftjcc.multiJoin(); // We start the joins and count the cache
         long endTime = System.nanoTime();
