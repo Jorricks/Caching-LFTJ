@@ -37,15 +37,17 @@ public class TreeDecomposition {
      * Modifies? the arrayList bags to contain all bags of the tree.
      */
     private void createBags(Enum CycleOrRounds){
-        //for a path query, bag 0 holds variables 0 and 1, bag 1  holds variables 1 and 2, etc..
-        if (CycleOrRounds == CycleOrRoundsEnum.PATH){
-            for(int i = 0; i < nrOfBags; i++) {
-                ArrayList<Integer> tempBag = new ArrayList<>();
-                tempBag.add(i);
-                tempBag.add(i+1);
-                bags.add(tempBag);
+        
+        for(int i = 0; i < nrOfBags; i++) {
+            ArrayList<Integer> tempBag = new ArrayList<>();
+            if ((CycleOrRounds == CycleOrRoundsEnum.CYCLE) && (i != 0)) {
+                tempBag.add(0);
             }
+            tempBag.add(i);
+            tempBag.add(i+1);
+            bags.add(tempBag);
         }
+        
         if(debug){ printBags();}
     }
     
@@ -151,7 +153,7 @@ public class TreeDecomposition {
      * @param args the command line arguments.
      */
     public static void main(String[] args) throws IOException {
-        TreeDecomposition td = new TreeDecomposition(CycleOrRoundsEnum.PATH, 4, true);
+        TreeDecomposition td = new TreeDecomposition(CycleOrRoundsEnum.CYCLE, 5, true);
         //td.multiJoin(); // We start the joins
     }
 }
