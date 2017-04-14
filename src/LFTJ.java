@@ -143,7 +143,9 @@ public class LFTJ {
                 }
             }
         }
+        System.out.println("Number of results: "+result.size());
         printResults();
+        //System.out.println(result);
     }
 
     /**

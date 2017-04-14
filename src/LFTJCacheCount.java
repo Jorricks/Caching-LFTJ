@@ -22,6 +22,8 @@ public class LFTJCacheCount extends LFTJ{
     private ArrayList<Integer> adhesion = new ArrayList<>();
     private TreeDecomposition td;
     private int cacheHitJumpCounter = 0;
+    private int numberOfCacheResults = 0;
+    private int numberOfComputedResults = 0;
     
     
     private LFTJCacheCount(String dataSetPath, Enum CycleOrRoundsEnum, int amountOfPathOrCycle) throws IOException {
@@ -175,6 +177,7 @@ public class LFTJCacheCount extends LFTJ{
                     currentTuple.add(key);
                     tuple.addAll(currentTuple);
                     result.add(tuple);
+                    numberOfComputedResults++;
                     currentTuple.remove(currentTuple.size()-1);
 
                     key = -1;
@@ -208,11 +211,11 @@ public class LFTJCacheCount extends LFTJ{
                 }
             }
         }
-        // @TODO This doesn't seem to be finished
+        
         System.out.println("Total number of cache hits: "+totalCacheHits);
-        System.out.println("Total number of results: "+result.size());
+        System.out.println("Total number of results: "+result.size()+ " of which " + numberOfCacheResults +" are from cache and " + numberOfComputedResults+" are computed");
         //System.out.println(result);
-        // @TODO end of todo
+        
     }
     
     /**
@@ -255,6 +258,7 @@ public class LFTJCacheCount extends LFTJ{
                     tempTuple.addAll(currentTuple);
                     tempTuple.addAll(allCacheResult);
                     result.add(tempTuple);
+                    numberOfCacheResults++;
                 }
 
                 if(debug>=1){
