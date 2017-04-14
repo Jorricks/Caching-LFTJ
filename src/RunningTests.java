@@ -28,7 +28,7 @@ public class RunningTests {
                     LFTJ.CycleOrRoundsEnum cycleOrRounds = LFTJ.CycleOrRoundsEnum.CYCLE;
                 }
                 for( int k=4; k < 7; k++){
-                    lftj = new LFTJ(dataFiles[i], cycleOrRounds, k);
+                    //lftj = new LFTJ(dataFiles[i], cycleOrRounds, k);
                 }
             }
         }
