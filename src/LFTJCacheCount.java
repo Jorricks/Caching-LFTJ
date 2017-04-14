@@ -135,7 +135,7 @@ public class LFTJCacheCount extends LFTJ{
                     }
 
                     // Create the values for the cache such that they come out in the results.
-                    ArrayList<ArrayList<Integer>> tempTupleList = new ArrayList<>(new ArrayList<>());
+                    ArrayList<ArrayList<Integer>> tempTupleList = new ArrayList<>();
                     for(int i = result.size()-1; i >= 0; i--){
                         if(currentTuple.equals(result.get(i).subList(0,depth))){
                             ArrayList<Integer> tempTuple = new ArrayList<>();
@@ -208,10 +208,9 @@ public class LFTJCacheCount extends LFTJ{
             }
         }
         // @TODO This doesn't seem to be finished
-        //totalCacheHits = totalCacheHits + f ?? moet nog
-        System.out.println(totalCacheHits);
-        System.out.println(result.size());
-        System.out.println(result);
+        System.out.println("Total number of cache hits: "+totalCacheHits);
+        System.out.println("Total number of results: "+result.size());
+        //System.out.println(result);
         // @TODO end of todo
     }
     
@@ -246,6 +245,7 @@ public class LFTJCacheCount extends LFTJ{
 
                 if(debug>=1){ System.out.println("cache hit");}
 
+                totalCacheHits++;
                 // Adding the results to our arrayList result
                 ArrayList<ArrayList<Integer>> allCacheResults;
                 allCacheResults = caches.get(v).returnOwnedKeys(currentTuple.get(adhesion.get(0)));

@@ -5,7 +5,7 @@
  */
 package src;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+//import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class Cache {
      */
     Cache(){
         vas = new ArrayList<>();
-        ownedKeys = new ArrayList<>(new ArrayList<>());
+        ownedKeys = new ArrayList<>();
     }
     
     /**
@@ -34,7 +34,7 @@ public class Cache {
      */
     void addAssignment(VariableAssignment ass){
         vas.add(ass);
-        ArrayList<ArrayList<Integer>> emptyArrayList = new ArrayList<>(new ArrayList<>());
+        ArrayList<ArrayList<Integer>> emptyArrayList = new ArrayList<>();
         ownedKeys.add(emptyArrayList);
     }
     

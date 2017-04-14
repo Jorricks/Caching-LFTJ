@@ -29,7 +29,7 @@ public class LFTJ {
      */
     LFTJ() throws IOException {
 
-        initDataSets("./data/self-created-test.txt", CycleOrRoundsEnum.PATH, 4);
+        initDataSets("./data/CA-GrQc.txt", CycleOrRoundsEnum.CYCLE, 7);
         result = new ArrayList<>(); //create an array that will hold the results
     }
 
@@ -135,7 +135,7 @@ public class LFTJ {
             }
         }
         System.out.println(result.size());
-        System.out.println(result);
+        //System.out.println(result);
     }
 
     /**
