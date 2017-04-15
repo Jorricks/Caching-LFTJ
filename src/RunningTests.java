@@ -23,9 +23,9 @@ public class RunningTests {
             System.out.println("----------- Data file : "+dataFiles[i]+" -----------");
             for(int j = 0 ; j < 2; j++){
                 if(j==0){
-                    LFTJ.CycleOrRoundsEnum cycleOrRounds = LFTJ.CycleOrRoundsEnum.PATH;
+                    LFTJ.CycleOrPathsEnum cycleOrRounds = LFTJ.CycleOrPathsEnum.PATH;
                 } else {
-                    LFTJ.CycleOrRoundsEnum cycleOrRounds = LFTJ.CycleOrRoundsEnum.CYCLE;
+                    LFTJ.CycleOrPathsEnum cycleOrRounds = LFTJ.CycleOrPathsEnum.CYCLE;
                 }
                 for( int k=4; k < 7; k++){
                     //lftj = new LFTJ(dataFiles[i], cycleOrRounds, k);
