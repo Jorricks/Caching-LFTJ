@@ -24,13 +24,27 @@ public class LFTJ {
     boolean atEnd; // Mirrors whether there is an iterator at his end.
     public enum CycleOrPathsEnum { CYCLE, PATH } // Whether we want the relations to be a cycle or a path.
 
+    long startTime, midTime, endTime; // Information about when the round started and finished.
+    String resultCycleOrPath, resultAmountOfCycleorPath;
+
     /**
      * Constructor of this class
      */
-    LFTJ() throws IOException {
+    LFTJ(String dataSetPath, Enum CycleOrPaths, int amountOfPathOrCycle) throws IOException {
+        startTime = System.nanoTime(); // Getting the time at the start
+        //initDataSets("./data/test.txt", CycleOrPathsEnum.CYCLE, 7);
+        if(CycleOrPaths == CycleOrPathsEnum.CYCLE){ // Used for printing results.
+            resultCycleOrPath = "Cycle";
+        } else {
+            resultCycleOrPath = "Path";
+        }
+        resultAmountOfCycleorPath = String.valueOf(amountOfPathOrCycle);
 
-        initDataSets("./data/test.txt", CycleOrPathsEnum.CYCLE, 7);
+        initDataSets(dataSetPath, CycleOrPaths, amountOfPathOrCycle);
+
         result = new ArrayList<>(); //create an array that will hold the results
+
+        midTime = System.nanoTime(); // Getting the time it took to initialize
     }
 
     /**
@@ -63,7 +77,7 @@ public class LFTJ {
             RelationIterator<Integer> relIterator = rel.iterator();
             relIts.add(relIterator);
         }
-         
+
         maxDepth = amountOfPathOrCycle - 1;
        
         iteratorPerDepth = new ArrayList<>();
@@ -74,13 +88,11 @@ public class LFTJ {
             int b = Math.min(j, maxDepth - 1);
             for (int k = a; k <= b; k++) {
                 intermedAListForIterators.add(relIts.get(k));
-                //System.out.println("added at depth " + j + " iterator " + k);
             }
             
             //for a cycle query, we add for the first and last depth, the last iterator (this creates the cycle)
             if((CycleOrRounds == CycleOrPathsEnum.CYCLE) && (j == 0 || j == maxDepth)) {
                 intermedAListForIterators.add(relIts.get(maxDepth));
-                //System.out.println("added at depth " + j + " iterator " + (maxDepth));
             }
             
             iteratorPerDepth.add(intermedAListForIterators);
@@ -119,6 +131,7 @@ public class LFTJ {
                     currentTuple.add(key);
                     tuple.addAll(currentTuple);
                     result.add(tuple);
+                    tuple = null;
                     currentTuple.remove(currentTuple.size()-1);
 
                     key = -1;
@@ -132,8 +145,13 @@ public class LFTJ {
                 }
             }
         }
+
         System.out.println("Number of results: "+result.size());
         System.out.println(result);
+
+        endTime = System.nanoTime();
+        printResults();
+
     }
 
     /**
@@ -216,7 +234,6 @@ public class LFTJ {
             atEnd = true;
         } else {
             p = (p + 1) % numIters;
-//            leapfrogSearch();
             leapfrogInit();
         }
     }
@@ -287,6 +304,19 @@ public class LFTJ {
     }
 
     /**
+     * Function to print the results in such a way with tabs that it can be reused.
+     */
+    private void printResults(){
+        System.out.println("No caching" + "\t" +
+                resultCycleOrPath + "\t" +
+                resultAmountOfCycleorPath + "\t" +
+                (midTime-startTime)/1000000 + "\t" +
+                (endTime-midTime)/1000000 + "\t" +
+                (endTime-startTime)/1000000 + "\t" +
+                result.size() + "\t");
+    }
+
+    /**
      * Function to print debug information.
      */
     void printDebugInfo(String message){
@@ -324,7 +354,8 @@ public class LFTJ {
      */
     public static void main(String[] args) throws IOException {
         long startTime = System.nanoTime();
-        LFTJ lftj = new LFTJ(); // Create a LFTJ with cache, load the datasets and ready to rumble
+        LFTJ lftj = new LFTJ("./data/test.txt", CycleOrPathsEnum.PATH, 4);
+        // Create a LFTJ with cache, load the datasets and ready to rumble
         long midTime = System.nanoTime();
         lftj.multiJoin(); // We start the joins and count the cache
         long endTime = System.nanoTime();

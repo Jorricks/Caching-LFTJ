@@ -27,7 +27,10 @@ public class LFTJCacheCount extends LFTJ {
     private int numberOfComputedResults = 0;
     Enum CycleOrPaths;
 
-    private LFTJCacheCount() throws IOException {
+
+    LFTJCacheCount(String dataSetPath, Enum CycleOrPathsEnum, int amountOfPathOrCycle) throws IOException {
+        super(dataSetPath, CycleOrPathsEnum, amountOfPathOrCycle);
+
         // Executes the init method of LFTJ..
     }
 
@@ -242,6 +245,9 @@ public class LFTJCacheCount extends LFTJ {
         System.out.println("Total number of results: " + result.size() + " of which " + numberOfCacheResults + " are from cache and " + numberOfComputedResults + " are computed");
         //System.out.println(result);
 
+        endTime = System.nanoTime();
+        printResults();
+
     }
 
     /**
@@ -421,12 +427,30 @@ public class LFTJCacheCount extends LFTJ {
         adhesion = td.adhesion.get(v);
     }
 
+
+    /**
+     * Function to print the results in such a way with tabs that it can be reused.
+     */
+    private void printResults(){
+        System.out.println("Caching" + "\t" +
+                resultCycleOrPath + "\t" +
+                resultAmountOfCycleorPath + "\t" +
+                (midTime-startTime)/1000000 + "\t" +
+                (endTime-midTime)/1000000 + "\t" +
+                (endTime-startTime)/1000000 + "\t" +
+                result.size() + "\t" +
+                numberOfCacheResults + "\t" +
+                numberOfComputedResults + "\t" +
+                totalCacheHits + "\t"
+        );
+    }
+
     /**
      * @param args the command line arguments.
      */
     public static void main(String[] args) throws IOException {
         long startTime = System.nanoTime();
-        LFTJCacheCount lftjcc = new LFTJCacheCount(); // Create a LFTJ with cache, load the datasets and ready to rumble
+        LFTJCacheCount lftjcc = new LFTJCacheCount("./data/test.txt", CycleOrPathsEnum.PATH, 4); // Create a LFTJ with cache, load the datasets and ready to rumble
         long midTime = System.nanoTime();
         lftjcc.multiJoin(); // We start the joins and count the cache
         long endTime = System.nanoTime();
