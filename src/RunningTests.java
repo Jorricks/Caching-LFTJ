@@ -39,7 +39,7 @@ public class RunningTests {
                 } else {
                     cycleOrRounds = LFTJ.CycleOrRoundsEnum.CYCLE;
                 }
-                for( int k=4; k < 7; k++){
+                for( int k=4; k < 5; k++){
                     lftj = new LFTJ(dataFiles[i], cycleOrRounds, k);
                     lftj.multiJoin();
                     lftj = null;

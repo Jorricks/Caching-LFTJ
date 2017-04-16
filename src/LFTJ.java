@@ -347,7 +347,7 @@ public class LFTJ {
      */
     public static void main(String[] args) throws IOException {
         long startTime = System.nanoTime();
-        LFTJ lftj = new LFTJ("./data/CA-GrQc.txt", CycleOrRoundsEnum.PATH, 4);
+        LFTJ lftj = new LFTJ("./data/CA-GrQc.txt", CycleOrRoundsEnum.PATH, 5);
         // Create a LFTJ with cache, load the datasets and ready to rumble
         long midTime = System.nanoTime();
         lftj.multiJoin(); // We start the joins and count the cache
