@@ -22,7 +22,7 @@ public class LFTJ {
     int maxDepth = 0; // How deep is our relation? R(x,y), T(y,z) yields 2.
     int key = 0; // Contains the key value when we find a matching search in leapfrogSearch.
     boolean atEnd; // Mirrors whether there is an iterator at his end.
-    public enum CycleOrRoundsEnum { CYCLE, PATH } // Whether we want the relations to be a cycle or a path.
+    public enum CycleOrPathsEnum { CYCLE, PATH } // Whether we want the relations to be a cycle or a path.
 
     long startTime, midTime, endTime; // Information about when the round started and finished.
     String resultCycleOrPath, resultAmountOfCycleorPath;
@@ -30,17 +30,18 @@ public class LFTJ {
     /**
      * Constructor of this class
      */
-    LFTJ(String dataSetPath, Enum CycleOrRounds, int amountOfPathOrCycle) throws IOException {
+    LFTJ(String dataSetPath, Enum CycleOrPaths, int amountOfPathOrCycle) throws IOException {
         startTime = System.nanoTime(); // Getting the time at the start
-
-        if(CycleOrRounds == CycleOrRoundsEnum.CYCLE){ // Used for printing results.
+        //initDataSets("./data/test.txt", CycleOrPathsEnum.CYCLE, 7);
+        if(CycleOrPaths == CycleOrPathsEnum.CYCLE){ // Used for printing results.
             resultCycleOrPath = "Cycle";
         } else {
             resultCycleOrPath = "Path";
         }
         resultAmountOfCycleorPath = String.valueOf(amountOfPathOrCycle);
 
-        initDataSets(dataSetPath, CycleOrRounds, amountOfPathOrCycle);
+        initDataSets(dataSetPath, CycleOrPaths, amountOfPathOrCycle);
+
         result = new ArrayList<>(); //create an array that will hold the results
 
         midTime = System.nanoTime(); // Getting the time it took to initialize
@@ -53,19 +54,20 @@ public class LFTJ {
      * @param amountOfPathOrCycle Specifies the # of paths or cycles specified in the query, i.e. 3-path, 3-cycle etc.
      * When? At the start of the program.
      * Calls? When all iterators are still 'alive' we call leapfrogSearch.
+     * @throws java.io.IOException
      */
     public void initDataSets(String fileName, Enum CycleOrRounds, int amountOfPathOrCycle) throws IOException{
         //for a cycle we have as many relations as amountOfPathOrCycle, i.e. a 4-cycle query gives 4 relations
         int amountOfRelations = amountOfPathOrCycle;
         //for a path we have one less, i.e. a 4-path query gives 3 relations
-        if (CycleOrRounds == CycleOrRoundsEnum.PATH) {
+        if (CycleOrRounds == CycleOrPathsEnum.PATH) {
             amountOfRelations--;
         }
         ArrayList<RelationIterator<Integer>> relIts = new ArrayList<>();
         int i;
         for(i = 1; i <= amountOfRelations; i++){
             DataImporter di;
-            if(CycleOrRounds == CycleOrRoundsEnum.CYCLE && i == amountOfRelations) {
+            if(CycleOrRounds == CycleOrPathsEnum.CYCLE && i == amountOfRelations) {
                 di = new DataImporter(fileName, true, debug>1);
             } else {
                 di = new DataImporter(fileName, false, debug>1);
@@ -75,8 +77,7 @@ public class LFTJ {
             RelationIterator<Integer> relIterator = rel.iterator();
             relIts.add(relIterator);
         }
-        
-        
+
         maxDepth = amountOfPathOrCycle - 1;
        
         iteratorPerDepth = new ArrayList<>();
@@ -90,7 +91,7 @@ public class LFTJ {
             }
             
             //for a cycle query, we add for the first and last depth, the last iterator (this creates the cycle)
-            if((CycleOrRounds == CycleOrRoundsEnum.CYCLE) && (j == 0 || j == maxDepth)) {
+            if((CycleOrRounds == CycleOrPathsEnum.CYCLE) && (j == 0 || j == maxDepth)) {
                 intermedAListForIterators.add(relIts.get(maxDepth));
             }
             
@@ -144,8 +145,13 @@ public class LFTJ {
                 }
             }
         }
+
+        System.out.println("Number of results: "+result.size());
+        System.out.println(result);
+
         endTime = System.nanoTime();
         printResults();
+
     }
 
     /**
@@ -344,10 +350,11 @@ public class LFTJ {
 
     /**
      * @param args the command line arguments.
+     * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
         long startTime = System.nanoTime();
-        LFTJ lftj = new LFTJ("./data/CA-GrQc.txt", CycleOrRoundsEnum.PATH, 5);
+        LFTJ lftj = new LFTJ("./data/test.txt", CycleOrPathsEnum.PATH, 4);
         // Create a LFTJ with cache, load the datasets and ready to rumble
         long midTime = System.nanoTime();
         lftj.multiJoin(); // We start the joins and count the cache

@@ -7,7 +7,7 @@ package src;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import src.LFTJ.CycleOrRoundsEnum;
+import src.LFTJ.CycleOrPathsEnum;
 
 public class TreeDecomposition {
     private boolean debug;
@@ -40,7 +40,7 @@ public class TreeDecomposition {
         
         for(int i = 0; i < nrOfBags; i++) {
             ArrayList<Integer> tempBag = new ArrayList<>();
-            if ((CycleOrRounds == CycleOrRoundsEnum.CYCLE) && (i != 0)) {
+            if ((CycleOrRounds == CycleOrPathsEnum.CYCLE) && (i != 0)) {
                 tempBag.add(0);
             }
             tempBag.add(i);
@@ -153,7 +153,7 @@ public class TreeDecomposition {
      * @param args the command line arguments.
      */
     public static void main(String[] args) throws IOException {
-        TreeDecomposition td = new TreeDecomposition(CycleOrRoundsEnum.CYCLE, 5, true);
+        TreeDecomposition td = new TreeDecomposition(CycleOrPathsEnum.CYCLE, 5, true);
         //td.multiJoin(); // We start the joins
     }
 }

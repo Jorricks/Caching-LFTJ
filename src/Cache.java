@@ -62,8 +62,12 @@ public class Cache {
         ownedKeys.get(getAssKey(ass)).add(keys);
     }
 
-    public ArrayList<ArrayList<Integer>> returnOwnedKeys(int key){
-        return ownedKeys.get(getAssKey(key));
+    public ArrayList<ArrayList<Integer>> returnOwnedKeysPath(int key){
+        return ownedKeys.get(getAssKeyPath(key));
+    }
+    
+    public ArrayList<ArrayList<Integer>> returnOwnedKeysCycle(int key1, int key2){
+        return ownedKeys.get(getAssKeyCycle(key1, key2));
     }
 
     private int getAssKey(VariableAssignment ass){
@@ -78,10 +82,22 @@ public class Cache {
         return -1;
     }
 
-    private int getAssKey(int key){
+    private int getAssKeyPath(int key){
         int result = 0;
         for(int i = 0; i < vas.size(); i++){
-            if(vas.get(i).assignment == key){
+            if(vas.get(i).assignment1 == key){
+                return result;
+            }
+            result++;
+        }
+        System.out.println("Could not find VariableAssignment in current bag.");
+        return -1;
+    }
+    
+    private int getAssKeyCycle(int key1, int key2){
+        int result = 0;
+        for(int i = 0; i < vas.size(); i++){
+            if(vas.get(i).assignment1 == key1 && vas.get(i).assignment2 == key2){
                 return result;
             }
             result++;
@@ -100,9 +116,19 @@ public class Cache {
      * @return true if vas contains a variable assignment with variable=var and 
      * assignment=ass, false otherwise
      */
-    public boolean containsAssignment(int var, int ass){
+    public boolean containsAssignmentPath(int var, int ass){
         for(VariableAssignment va : vas) {
-            if (va.variable == var && va.assignment == ass) {
+            if (va.variable1 == var && va.assignment1 == ass) {
+                lastChecked = va;
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean containsAssignmentCycle(int var1, int ass1, int var2, int ass2){
+        for(VariableAssignment va : vas) {
+            if (va.variable1 == var1 && va.assignment1 == ass1 && va.variable2 == var2 && va.assignment2 == ass2) {
                 lastChecked = va;
                 return true;
             }
